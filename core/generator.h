@@ -14,16 +14,11 @@
 
 namespace ycsbc {
 
-class IntGenerator {
+template <typename Value>
+class Generator {
  public:
-  virtual uint64_t NextInt() = 0;
-  virtual uint64_t LastInt() = 0;
-};
-
-class StringGenerator {
- public:
-  virtual std::string NextString() = 0;
-  virtual std::string LastString() = 0;
+  virtual Value Next() = 0;
+  virtual Value Last() = 0;
 };
 
 } // ycsbc

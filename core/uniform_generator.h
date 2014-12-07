@@ -9,18 +9,18 @@
 #ifndef YCSB_C_UNIFORM_GENERATOR_H_
 #define YCSB_C_UNIFORM_GENERATOR_H_
 
-#include <random>
 #include "generator.h"
+#include <random>
 
 namespace ycsbc {
 
-class UniformGenerator : public IntGenerator {
+class UniformGenerator : public Generator<uint64_t> {
  public:
   // Both min and max are inclusive
   UniformGenerator(uint64_t min, uint64_t max) : dist_(min, max) { }
   
-  uint64_t NextInt() { return last_int_ = dist_(generator_); }
-  uint64_t LastInt() { return last_int_; }
+  uint64_t Next() { return last_int_ = dist_(generator_); }
+  uint64_t Last() { return last_int_; }
   
  private:
   uint64_t last_int_;
