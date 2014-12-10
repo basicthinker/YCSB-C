@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <random>
 
-namespace ycsbc {
 namespace utils {
 
 const uint64_t kFNVOffsetBasis64 = 0xCBF29CE484222325;
@@ -38,6 +37,5 @@ double RandomDouble(double min = 0.0, double max = 1.0) {
 }
 
 } // utils
-} // ycsbc
 
 #endif // YCSB_C_UTILS_H
