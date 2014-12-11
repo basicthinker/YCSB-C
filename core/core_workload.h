@@ -10,8 +10,22 @@
 #define YCSB_C_CORE_WORKLOAD_H_
 
 #include <string>
+#include "client.h"
+#include "properties.h"
+#include "generator.h"
+#include "discrete_generator.h"
+#include "counter_generator.h"
+#include "utils.h"
 
 namespace ycsbc {
+
+enum Operation {
+  INSERT,
+  READ,
+  UPDATE,
+  SCAN,
+  READMODIFYWRITE
+};
 
 class CoreWorkload {
  public:
@@ -104,13 +118,51 @@ class CoreWorkload {
   ///
   static const std::string SCAN_LENGTH_DISTRIBUTION_PROPERTY;
   static const std::string SCAN_LENGTH_DISTRIBUTION_DEFAULT;
-  
+
   /// 
   /// The name of the property for the order to insert records.
   /// Options are "ordered" or "hashed".
   ///
   static const std::string INSERT_ORDER_PROPERTY;
   static const std::string INSERT_ORDER_DEFAULT;
+
+  static const std::string INSERT_START_PROPERTY;
+  static const std::string INSERT_START_DEFAULT;
+
+  ///
+  /// Initialize the scenario.
+  /// Called once, in the main client thread, before any operations are started.
+  ///
+  void Init(const utils::Properties &p);
+  
+  CoreWorkload() :
+      filed_len_generator_(NULL), key_sequence_(NULL), key_chooser_(NULL),
+      field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3) { }
+  
+  ~CoreWorkload() {
+    if (filed_len_generator_) delete filed_len_generator_;
+    if (key_sequence_) delete key_sequence_;
+    if (key_chooser_) delete key_chooser_;
+    if (field_chooser_) delete field_chooser_;
+    if (scan_len_chooser_) delete scan_len_chooser_;
+  }
+  
+ protected:
+  static Generator<uint64_t> *GetFieldLenGenerator(const utils::Properties &p);
+ private:
+  std::string table_name_;
+  int field_count_;
+  Generator<uint64_t> *filed_len_generator_;
+  bool read_all_fields_;
+  bool write_all_fields_;
+  Generator<uint64_t> *key_sequence_;
+  DiscreteGenerator<Operation> op_chooser_;
+  Generator<uint64_t> *key_chooser_;
+  Generator<uint64_t> *field_chooser_;
+  Generator<uint64_t> *scan_len_chooser_;
+  CounterGenerator insert_key_sequence_;
+  bool ordered_inserts_;
+  int record_count_;
 };
 
 } // ycsbc
