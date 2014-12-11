@@ -12,7 +12,6 @@
 #include <vector>
 #include <string>
 #include "db.h"
-#include "client.h"
 #include "properties.h"
 #include "generator.h"
 #include "discrete_generator.h"
@@ -130,28 +129,39 @@ class CoreWorkload {
 
   static const std::string INSERT_START_PROPERTY;
   static const std::string INSERT_START_DEFAULT;
+  
+  static const std::string RECORD_COUNT_PROPERTY;
+  static const std::string OPERATION_COUNT_PROPERTY;
 
   ///
   /// Initialize the scenario.
   /// Called once, in the main client thread, before any operations are started.
   ///
-  void Init(const utils::Properties &p);
+  virtual void Init(const utils::Properties &p);
   
-  std::string BuildKeyName(uint64_t key_num);
-  std::string BuildFieldName();
-  void BuildValues(std::vector<ycsbc::DB::KVPair> &values);
-  void BuildUpdate(std::vector<ycsbc::DB::KVPair> &update);
+  virtual void BuildValues(std::vector<ycsbc::DB::KVPair> &values);
+  virtual void BuildUpdate(std::vector<ycsbc::DB::KVPair> &update);
   
-  Operation NextOperation() { return op_chooser_.Next(); }
-  size_t NextScanLength() { return scan_len_chooser_->Next(); }
+  virtual std::string NextTable() { return table_name_; }
+  virtual std::string NextSequenceKey(); /// Used for loading data
+  virtual std::string NextTransactionKey(); /// Used for transactions
+  virtual Operation NextOperation() { return op_chooser_.Next(); }
+  virtual std::string NextFieldName();
+  virtual size_t NextScanLength() { return scan_len_chooser_->Next(); }
   
+  bool read_all_fields() const { return read_all_fields_; }
+  bool write_all_fields() const { return write_all_fields_; }
+
   CoreWorkload() :
-      field_len_generator_(NULL), key_sequence_(NULL), key_chooser_(NULL),
-      field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3) { }
+      field_count_(0), read_all_fields_(false), write_all_fields_(false),
+      field_len_generator_(NULL), key_generator_(NULL), key_chooser_(NULL),
+      field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3),
+      ordered_inserts_(true), record_count_(0) {
+  }
   
-  ~CoreWorkload() {
+  virtual ~CoreWorkload() {
     if (field_len_generator_) delete field_len_generator_;
-    if (key_sequence_) delete key_sequence_;
+    if (key_generator_) delete key_generator_;
     if (key_chooser_) delete key_chooser_;
     if (field_chooser_) delete field_chooser_;
     if (scan_len_chooser_) delete scan_len_chooser_;
@@ -159,13 +169,14 @@ class CoreWorkload {
   
  protected:
   static Generator<uint64_t> *GetFieldLenGenerator(const utils::Properties &p);
- private:
+  std::string BuildKeyName(uint64_t key_num);
+
   std::string table_name_;
   int field_count_;
-  Generator<uint64_t> *field_len_generator_;
   bool read_all_fields_;
   bool write_all_fields_;
-  Generator<uint64_t> *key_sequence_;
+  Generator<uint64_t> *field_len_generator_;
+  Generator<uint64_t> *key_generator_;
   DiscreteGenerator<Operation> op_chooser_;
   Generator<uint64_t> *key_chooser_;
   Generator<uint64_t> *field_chooser_;
@@ -175,8 +186,17 @@ class CoreWorkload {
   size_t record_count_;
 };
 
-inline std::string CoreWorkload::BuildFieldName() {
-  return std::string("field").append(std::to_string(field_chooser_->Next()));
+inline std::string CoreWorkload::NextSequenceKey() {
+  uint64_t key_num = key_generator_->Next();
+  return BuildKeyName(key_num);
+}
+
+inline std::string CoreWorkload::NextTransactionKey() {
+  uint64_t key_num;
+  do {
+    key_num = key_chooser_->Next();
+  } while (key_num > insert_key_sequence_.Last());
+  return BuildKeyName(key_num);
 }
 
 inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
@@ -184,6 +204,10 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
     key_num = utils::Hash(key_num);
   }
   return std::string("user").append(std::to_string(key_num));
+}
+
+inline std::string CoreWorkload::NextFieldName() {
+  return std::string("field").append(std::to_string(field_chooser_->Next()));
 }
   
 } // ycsbc

@@ -70,6 +70,9 @@ const string CoreWorkload::INSERT_ORDER_DEFAULT = "hashed";
 const string CoreWorkload::INSERT_START_PROPERTY = "insertstart";
 const string CoreWorkload::INSERT_START_DEFAULT = "0";
 
+const string CoreWorkload::RECORD_COUNT_PROPERTY = "recordcount";
+const string CoreWorkload::OPERATION_COUNT_PROPERTY = "operationcount";
+
 void CoreWorkload::Init(const utils::Properties &p) {
   table_name_ = p.GetProperty(TABLENAME_PROPERTY,TABLENAME_DEFAULT);
   
@@ -88,7 +91,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
   double readmodifywrite_proportion = std::stod(p.GetProperty(
       READMODIFYWRITE_PROPORTION_PROPERTY, READMODIFYWRITE_PROPORTION_DEFAULT));
   
-  record_count_ = std::stoi(p.GetProperty(Client::RECORD_COUNT_PROPERTY));
+  record_count_ = std::stoi(p.GetProperty(RECORD_COUNT_PROPERTY));
   std::string request_dist = p.GetProperty(REQUEST_DISTRIBUTION_PROPERTY,
                                            REQUEST_DISTRIBUTION_DEFAULT);
   int max_scan_len = std::stoi(p.GetProperty(MAX_SCAN_LENGTH_PROPERTY,
@@ -109,7 +112,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
     ordered_inserts_ = true;
   }
   
-  key_sequence_ = new CounterGenerator(insert_start);
+  key_generator_ = new CounterGenerator(insert_start);
   
   if (read_proportion > 0) {
     op_chooser_.AddValue(READ, read_proportion);
@@ -138,7 +141,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
     // that is larger than what exists at the beginning of the test.
     // If the generator picks a key that is not inserted yet, we just ignore it
     // and pick another key.
-    int op_count = std::stoi(p.GetProperty(Client::OPERATION_COUNT_PROPERTY));
+    int op_count = std::stoi(p.GetProperty(OPERATION_COUNT_PROPERTY));
     int new_keys = (int)(op_count * insert_proportion * 2); // a fudge factor
     key_chooser_ = new ScrambledZipfianGenerator(record_count_ + new_keys);
     
@@ -182,14 +185,14 @@ void CoreWorkload::BuildValues(std::vector<ycsbc::DB::KVPair> &values) {
   for (int i = 0; i < field_count_; i++) {
     ycsbc::DB::KVPair pair;
     pair.first.append("field").append(std::to_string(i));
-    pair.second.append(field_len_generator_->Next(), rand() % 31 + ' ');
+    pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar());
     values.push_back(pair);
   }
 }
 
 void CoreWorkload::BuildUpdate(std::vector<ycsbc::DB::KVPair> &update) {
   ycsbc::DB::KVPair pair;
-  pair.first.append(BuildFieldName());
-  pair.second.append(field_len_generator_->Next(), rand() % 31 + ' ');
+  pair.first.append(NextFieldName());
+  pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar());
   update.push_back(pair);
 }

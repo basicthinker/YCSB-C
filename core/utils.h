@@ -39,6 +39,13 @@ inline double RandomDouble(double min = 0.0, double max = 1.0) {
   return uniform(generator);
 }
 
+///
+/// Returns an ASCII code that can be printed to desplay
+///
+inline char RandomPrintChar() {
+  return rand() % 94 + 33;
+}
+
 inline bool StrToBool(std::string str) {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);
   if (str == "true" || str == "1") {
