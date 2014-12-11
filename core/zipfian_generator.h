@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cmath>
 #include <cassert>
+#include "utils.h"
 
 namespace ycsbc {
 
@@ -33,14 +34,14 @@ class ZipfianGenerator : public Generator<uint64_t> {
     Next();
   }
   
-  ZipfianGenerator(uint64_t num_items, double zipfian_const = kZipfianConst) :
-      ZipfianGenerator(0, num_items - 1, zipfian_const) { }
+  ZipfianGenerator(uint64_t num_items) :
+      ZipfianGenerator(0, num_items - 1, kZipfianConst) { }
   
   uint64_t Next(uint64_t num_items);
   
-  inline uint64_t Next() { return Next(num_items_); }
+  uint64_t Next() { return Next(num_items_); }
 
-  inline uint64_t Last() { return last_value_; }
+  uint64_t Last() { return last_value_; }
   
  private:
   ///
@@ -53,7 +54,7 @@ class ZipfianGenerator : public Generator<uint64_t> {
     n_for_zeta_ = num;
   }
   
-  inline double Eta() {
+  double Eta() {
     return (1 - std::pow(2.0 / num_items_, 1 - theta_)) /
         (1 - zeta_2_ / zeta_n_);
   }
@@ -73,7 +74,7 @@ class ZipfianGenerator : public Generator<uint64_t> {
     return zeta;
   }
   
-  static inline double Zeta(uint64_t num, double theta) {
+  static double Zeta(uint64_t num, double theta) {
     return Zeta(0, num, theta, 0);
   }
   
@@ -86,7 +87,7 @@ class ZipfianGenerator : public Generator<uint64_t> {
   uint64_t last_value_;
 };
 
-uint64_t ZipfianGenerator::Next(uint64_t num) {
+inline uint64_t ZipfianGenerator::Next(uint64_t num) {
   assert(num >= 2 && num < kMaxNumItems);
   if (num > n_for_zeta_) { // Recompute zeta_n and eta
     RaiseZeta(num);

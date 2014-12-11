@@ -23,15 +23,15 @@ class Properties {
   std::map<std::string, std::string> properties_;
 };
 
-std::string Properties::GetProperty(const std::string &key,
-                                    const std::string &default_value) {
+inline std::string Properties::GetProperty(const std::string &key,
+    const std::string &default_value) {
   std::map<std::string, std::string>::iterator it = properties_.find(key);
   if (properties_.end() == it) {
     return default_value;
   } else return it->second;
 }
 
-void Properties::SetProperty(const std::string &key,
+inline void Properties::SetProperty(const std::string &key,
                                     const std::string &value) {
   properties_[key] = value;
 }

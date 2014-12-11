@@ -17,7 +17,7 @@
 
 namespace ycsbc {
 
-class SkewedLatestGenerator : Generator<uint64_t> {
+class SkewedLatestGenerator : public Generator<uint64_t> {
  public:
   SkewedLatestGenerator(CounterGenerator &counter) :
       basis_(counter), zipfian_(basis_.Last()) {
@@ -32,7 +32,7 @@ class SkewedLatestGenerator : Generator<uint64_t> {
   uint64_t last_;
 };
 
-uint64_t SkewedLatestGenerator::Next() {
+inline uint64_t SkewedLatestGenerator::Next() {
   uint64_t max = basis_.Last();
   return last_ = max - zipfian_.Next(max);
 }

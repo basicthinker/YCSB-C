@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <cassert>
+#include "utils.h"
 
 namespace ycsbc {
 
@@ -30,7 +31,7 @@ class DiscreteGenerator : public Generator<Value> {
 };
 
 template <typename Value>
-void DiscreteGenerator<Value>::AddValue(Value value, double weight) {
+inline void DiscreteGenerator<Value>::AddValue(Value value, double weight) {
   if (values_.empty()) {
     last_ = value;
   }
@@ -39,7 +40,7 @@ void DiscreteGenerator<Value>::AddValue(Value value, double weight) {
 }
 
 template <typename Value>
-Value DiscreteGenerator<Value>::Next() {
+inline Value DiscreteGenerator<Value>::Next() {
   double chooser = utils::RandomDouble();
   
   for (auto p : values_) {
