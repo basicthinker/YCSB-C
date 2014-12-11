@@ -9,7 +9,9 @@
 #ifndef YCSB_C_CORE_WORKLOAD_H_
 #define YCSB_C_CORE_WORKLOAD_H_
 
+#include <vector>
 #include <string>
+#include "db.h"
 #include "client.h"
 #include "properties.h"
 #include "generator.h"
@@ -135,12 +137,20 @@ class CoreWorkload {
   ///
   void Init(const utils::Properties &p);
   
+  std::string BuildKeyName(uint64_t key_num);
+  std::string BuildFieldName();
+  void BuildValues(std::vector<ycsbc::DB::KVPair> &values);
+  void BuildUpdate(std::vector<ycsbc::DB::KVPair> &update);
+  
+  Operation NextOperation() { return op_chooser_.Next(); }
+  size_t NextScanLength() { return scan_len_chooser_->Next(); }
+  
   CoreWorkload() :
-      filed_len_generator_(NULL), key_sequence_(NULL), key_chooser_(NULL),
+      field_len_generator_(NULL), key_sequence_(NULL), key_chooser_(NULL),
       field_chooser_(NULL), scan_len_chooser_(NULL), insert_key_sequence_(3) { }
   
   ~CoreWorkload() {
-    if (filed_len_generator_) delete filed_len_generator_;
+    if (field_len_generator_) delete field_len_generator_;
     if (key_sequence_) delete key_sequence_;
     if (key_chooser_) delete key_chooser_;
     if (field_chooser_) delete field_chooser_;
@@ -152,7 +162,7 @@ class CoreWorkload {
  private:
   std::string table_name_;
   int field_count_;
-  Generator<uint64_t> *filed_len_generator_;
+  Generator<uint64_t> *field_len_generator_;
   bool read_all_fields_;
   bool write_all_fields_;
   Generator<uint64_t> *key_sequence_;
@@ -162,9 +172,20 @@ class CoreWorkload {
   Generator<uint64_t> *scan_len_chooser_;
   CounterGenerator insert_key_sequence_;
   bool ordered_inserts_;
-  int record_count_;
+  size_t record_count_;
 };
 
+inline std::string CoreWorkload::BuildFieldName() {
+  return std::string("field").append(std::to_string(field_chooser_->Next()));
+}
+
+inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
+  if (!ordered_inserts_) {
+    key_num = utils::Hash(key_num);
+  }
+  return std::string("user").append(std::to_string(key_num));
+}
+  
 } // ycsbc
 
 #endif // YCSB_C_CORE_WORKLOAD_H_
