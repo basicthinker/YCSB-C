@@ -5,6 +5,7 @@
 #include <map>
 #include "utils.h"
 #include "core_workload.h"
+#include "basic_db.h"
 
 using namespace std;
 
@@ -87,7 +88,7 @@ int main(const int argc, const char *argv[]) {
     exit(0);
   }
 
-  for (auto p : props.properties()) {
-    cout << "'" << p.first << "' : '" << p.second << "'" << endl;
-  }
+  ycsbc::BasicDB db;
+  db.Init(props);
 }
+
