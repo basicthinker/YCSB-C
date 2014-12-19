@@ -1,3 +1,11 @@
+//
+//  ycsbc.cc
+//  YCSB-C
+//
+//  Created by Jinglei Ren on 12/19/14.
+//  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
+//
+
 #include <cstring>
 #include <string>
 #include <iostream>
@@ -5,7 +13,7 @@
 #include <map>
 #include "utils.h"
 #include "core_workload.h"
-#include "basic_db.h"
+#include "db_factory.h"
 
 using namespace std;
 
@@ -30,7 +38,7 @@ int main(const int argc, const char *argv[]) {
   int target = 0;
 
   int argindex = 1;
-  while (StrStartWith(argv[argindex], "-")) {
+  while (argindex < argc && StrStartWith(argv[argindex], "-")) {
     if (strcmp(argv[argindex], "-threads") == 0) {
       argindex++;
       if (argindex >= argc) {
@@ -55,7 +63,7 @@ int main(const int argc, const char *argv[]) {
         UsageMessage(argv);
         exit(0);
       }
-      props.SetProperty("db", argv[argindex]);
+      dbname = argv[argindex];
       argindex++;
     } else if (strcmp(argv[argindex], "-P") == 0) {
       argindex++;
@@ -77,18 +85,18 @@ int main(const int argc, const char *argv[]) {
       cout << "Unknown option " << argv[argindex] << endl;
       exit(0);
     }
-
-    if (argindex >= argc) {
-      break;
-    }
   }
 
-  if (argindex != argc) {
+  if (argindex == 1 || argindex != argc) {
     UsageMessage(argv);
     exit(0);
   }
 
-  ycsbc::BasicDB db;
-  db.Init(props);
+  ycsbc::DB *db = ycsbc::DBFactory::CreateDB(dbname);
+  if (!db) {
+    cout << "Unknown database name " << dbname << endl;
+    exit(0);
+  }
+  db->Init(props);
 }
 
