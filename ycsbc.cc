@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 #include "utils.h"
+#include "timer.h"
 #include "core_workload.h"
 #include "db_factory.h"
 
@@ -98,5 +99,8 @@ int main(const int argc, const char *argv[]) {
     exit(0);
   }
   db->Init(props);
+  utils::Timer<double> timer;
+  timer.Start();
+  cout << timer.End() << endl;
 }
 
