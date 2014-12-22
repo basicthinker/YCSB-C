@@ -78,7 +78,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
   
   field_count_ = std::stoi(p.GetProperty(FIELD_COUNT_PROPERTY,
                                          FIELD_COUNT_DEFAULT));
-  //field_len_dist = CoreWorkload.getFieldLengthGenerator(p);
+  field_len_generator_ = GetFieldLenGenerator(p);
   
   double read_proportion = std::stod(p.GetProperty(READ_PROPORTION_PROPERTY,
                                                    READ_PROPORTION_DEFAULT));
@@ -182,7 +182,7 @@ ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(
 }
 
 void CoreWorkload::BuildValues(std::vector<ycsbc::DB::KVPair> &values) {
-  for (int i = 0; i < field_count_; i++) {
+  for (int i = 0; i < field_count_; ++i) {
     ycsbc::DB::KVPair pair;
     pair.first.append("field").append(std::to_string(i));
     pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar());
@@ -196,3 +196,4 @@ void CoreWorkload::BuildUpdate(std::vector<ycsbc::DB::KVPair> &update) {
   pair.second.append(field_len_generator_->Next(), utils::RandomPrintChar());
   update.push_back(pair);
 }
+

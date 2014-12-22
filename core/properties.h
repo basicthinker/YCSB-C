@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <cassert>
 
 namespace utils {
 
@@ -22,6 +23,7 @@ class Properties {
   void SetProperty(const std::string &key, const std::string &value);
   bool Load(std::ifstream &input);
   const std::map<std::string, std::string> &properties() const;
+  std::string &operator[](const std::string &key) { return properties_[key]; }
  private:
   std::map<std::string, std::string> properties_;
 };
