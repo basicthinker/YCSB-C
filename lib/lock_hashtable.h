@@ -5,8 +5,8 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>
 //
 
-#ifndef VM_PERSISTENCE_BENCHMARK_LOCK_HASHTABLE_H_
-#define VM_PERSISTENCE_BENCHMARK_LOCK_HASHTABLE_H_
+#ifndef VM_PERSISTENCE_LOCK_HASHTABLE_H_
+#define VM_PERSISTENCE_LOCK_HASHTABLE_H_
 
 #include "lib/stl_hashtable.h"
 
@@ -70,5 +70,5 @@ inline std::vector<typename LockHashtable<V>::KVPair> LockHashtable<V>::Entries(
 
 } // vmp
 
-#endif // VM_PERSISTENCE_BENCHMARK_LOCK_HASHTABLE_H_
+#endif // VM_PERSISTENCE_LOCK_HASHTABLE_H_
 
