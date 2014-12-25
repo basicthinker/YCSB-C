@@ -25,7 +25,8 @@ class STLHashtable : public StringHashtable<V> {
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
   V Remove(const char *key);
-  std::vector<KVPair> Entries(const char *key, std::size_t n) const;
+  std::vector<KVPair> Entries(const char *key = NULL,
+                              std::size_t n = -1) const;
   std::size_t Size() const { return table_.size(); }
 
  private:
@@ -46,9 +47,7 @@ class STLHashtable : public StringHashtable<V> {
 
 template<class V, class A>
 V STLHashtable<V, A>::Get(const char *key) const {
-  String skey;
-  skey.set_value(key);
-  typename Hashtable::const_iterator pos = table_.find(skey);
+  typename Hashtable::const_iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
   else return pos->second;
 }
@@ -62,9 +61,7 @@ bool STLHashtable<V, A>::Insert(const char *key, V value) {
 
 template<class V, class A>
 V STLHashtable<V, A>::Update(const char *key, V value) {
-  String skey;
-  skey.set_value(key);
-  typename Hashtable::iterator pos = table_.find(skey);
+  typename Hashtable::iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
   V old = pos->second;
   pos->second = value;
@@ -73,9 +70,7 @@ V STLHashtable<V, A>::Update(const char *key, V value) {
 
 template<class V, class A>
 V STLHashtable<V, A>::Remove(const char *key) {
-  String skey;
-  skey.set_value(key);
-  typename Hashtable::const_iterator pos = table_.find(skey);
+  typename Hashtable::const_iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
   FREE(pos->first.value());
   V old = pos->second;
@@ -87,9 +82,12 @@ template<class V, class A>
 std::vector<typename STLHashtable<V, A>::KVPair> STLHashtable<V, A>::Entries(
     const char *key, size_t n) const {
   std::vector<KVPair> pairs;
-  String skey;
-  skey.set_value(key);
-  typename Hashtable::const_iterator pos = table_.find(skey);
+  typename Hashtable::const_iterator pos;
+  if (!key) {
+    pos = table_.cbegin();
+  } else {
+    pos = table_.find(String::Wrap(key));
+  }
   for (int i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));
   }

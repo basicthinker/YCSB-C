@@ -25,7 +25,7 @@ class SLibHashtable : public StringHashtable<V> {
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
   V Remove(const char *key);
-  std::vector<KVPair> Entries(const char *key, size_t n) const;
+  std::vector<KVPair> Entries(const char *key = NULL, size_t n = -1) const;
   size_t Size() const { return table_.size(); }
 
  private:
@@ -47,10 +47,8 @@ class SLibHashtable : public StringHashtable<V> {
 
 template<class V>
 V SLibHashtable<V>::Get(const char *key) const {
-  String skey;
-  skey.set_value(key);
   V value;
-  if (!table_.find(skey, value)) return NULL;
+  if (!table_.find(String::Wrap(key), value)) return NULL;
   else return value;
 }
 
@@ -63,18 +61,14 @@ bool SLibHashtable<V>::Insert(const char *key, V value) {
 
 template<class V>
 V SLibHashtable<V>::Update(const char *key, V value) {
-  String skey;
-  skey.set_value(key);
-  if (!table_.update(skey, value)) return NULL;
+  if (!table_.update(String::Wrap(key), value)) return NULL;
   return value;
 }
 
 template<class V>
 V SLibHashtable<V>::Remove(const char *key) {
-  String skey;
-  skey.set_value(key);
   std::pair<String, V> removed;
-  if (!table_.erase(skey, removed)) return NULL;
+  if (!table_.erase(String::Wrap(key), removed)) return NULL;
   FREE(removed.first.value());
   return removed.second;
 }
@@ -83,8 +77,8 @@ template<class V>
 std::vector<typename SLibHashtable<V>::KVPair> SLibHashtable<V>::Entries(
     const char *key, size_t n) const {
   String skey;
-  skey.set_value(key);
-  std::vector<std::pair<String, V>> entries = table_.entries(skey, n);
+  std::vector<std::pair<String, V>> entries = table_.entries(
+      (key ? skey = String::Wrap(key), &skey : NULL), n);
   std::vector<KVPair> results;
   for (auto entry : entries) {
     results.push_back(std::make_pair(entry.first.value(), entry.second));

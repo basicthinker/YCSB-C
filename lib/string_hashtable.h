@@ -21,7 +21,8 @@ class StringHashtable {
   virtual bool Insert(const char *key, V value) = 0;
   virtual V Update(const char *key, V value) = 0;
   virtual V Remove(const char *key) = 0;
-  virtual std::vector<KVPair> Entries(const char *key, std::size_t n) const = 0;
+  virtual std::vector<KVPair> Entries(const char *key = NULL,
+                                      std::size_t n = -1) const = 0;
   virtual std::size_t Size() const = 0;
 
   virtual ~StringHashtable() { }

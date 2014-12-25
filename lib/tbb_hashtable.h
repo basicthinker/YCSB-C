@@ -25,7 +25,7 @@ class TBBHashtable : public StringHashtable<V> {
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
   V Remove(const char *key);
-  std::vector<KVPair> Entries(const char *key, std::size_t n) const;
+  std::vector<KVPair> Entries(const char *key = NULL, std::size_t n = -1) const;
   std::size_t Size() const { return table_.size(); }
 
  private:
@@ -47,10 +47,8 @@ class TBBHashtable : public StringHashtable<V> {
 
 template<class V>
 V TBBHashtable<V>::Get(const char *key) const {
-  String skey;
-  skey.set_value(key);
   typename Hashtable::accessor result;
-  if (!table_.find(result, skey)) return NULL;
+  if (!table_.find(result, String::Wrap(key))) return NULL;
   return result->second;
 }
 
@@ -63,10 +61,8 @@ bool TBBHashtable<V>::Insert(const char *key, V value) {
 
 template<class V>
 V TBBHashtable<V>::Update(const char *key, V value) {
-  String skey;
-  skey.set_value(key);
   typename Hashtable::accessor result;
-  if (!table_.find(result, skey)) return NULL;
+  if (!table_.find(result, String::Wrap(key))) return NULL;
   V old = result->second;
   result->second = value;
   return old;
@@ -74,10 +70,8 @@ V TBBHashtable<V>::Update(const char *key, V value) {
 
 template<class V>
 V TBBHashtable<V>::Remove(const char *key) {
-  String skey;
-  skey.set_value(key);
   typename Hashtable::accessor result;
-  if (!table_.find(result, skey)) return NULL;
+  if (!table_.find(result, String::Wrap(key))) return NULL;
   FREE(result->first.value());
   V old = result->second;
   table_.erase(result);
@@ -88,9 +82,8 @@ template<class V>
 std::vector<typename TBBHashtable<V>::KVPair> TBBHashtable<V>::Entries(
     const char *key, size_t n) const {
   std::vector<KVPair> pairs;
-  String skey;
-  skey.set_value(key);
-  typename Hashtable::const_iterator pos = table_.equal_range(skey).first;
+  typename Hashtable::const_iterator pos;
+  pos = key ? table_.equal_range(String::Wrap(key)).first : table_.begin();
   for (int i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));
   }

@@ -24,7 +24,7 @@ class LockHashtable : public STLHashtable<V> {
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
   V Remove(const char *key);
-  std::vector<KVPair> Entries(const char *key, size_t n) const;
+  std::vector<KVPair> Entries(const char *key = NULL, size_t n = -1) const;
   std::size_t Size() const;
 
  private:

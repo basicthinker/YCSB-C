@@ -26,6 +26,8 @@ class String {
   size_t length() const { return len_; }
   void set_value(const char *v);
 
+  static String Wrap(const char *v);
+
  private:
   uint64_t SDBMHash(const char *str);
 
@@ -57,6 +59,12 @@ inline uint64_t String::SDBMHash(const char *str) {
     hash = c + (hash << 6) + (hash << 16) - hash;
   }
   return hash;
+}
+
+inline String String::Wrap(const char *str) {
+  String hstr;
+  hstr.set_value(str);
+  return hstr;
 }
 
 } // vmp
