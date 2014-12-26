@@ -1,25 +1,24 @@
 CC=g++
-CFLAGS=-std=c++11 -Wall -pthread -g
-INCLUDES=-I./core -I./db
-LDFLAGS=
+CFLAGS=-std=c++11 -Wall -pthread -I./
+LDFLAGS= -lpthread -ltbb
 SUBDIRS=core db
-SOURCES=$(wildcard *.cc)
-OBJECTS=$(wildcard core/*.o) $(wildcard db/*.o)
-EXECUTABLE=ycsbc
+SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
+OBJECTS=$(SUBSRCS: .cc=.o)
+EXEC=ycsbc
 
-all: $(SUBDIRS) $(EXECUTABLE)
+all: $(SUBDIRS) $(EXEC)
 
 $(SUBDIRS):
 	$(MAKE) -C $@
 
-$(EXECUTABLE): $(SOURCES) $(OBJECTS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(LDFLAGS) $(SOURCES) $(OBJECTS) -o $@
+$(EXEC): $(wildcard *.cc) $(OBJECTS)
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
 	for dir in $(SUBDIRS); do \
 		$(MAKE) -C $$dir $@; \
 	done
-	$(RM) $(EXECUTABLE)
+	$(RM) $(EXEC)
 
-.PHONY: $(SUBDIRS) $(EXECUTABLE)
+.PHONY: $(SUBDIRS) $(EXEC)
 

@@ -9,8 +9,8 @@
 #ifndef YCSB_C_DB_FACTORY_H_
 #define YCSB_C_DB_FACTORY_H_
 
-#include "db.h"
-#include "basic_db.h"
+#include "core/db.h"
+#include "db/basic_db.h"
 
 namespace ycsbc {
 

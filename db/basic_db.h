@@ -9,12 +9,12 @@
 #ifndef YCSB_C_BASIC_DB_H_
 #define YCSB_C_BASIC_DB_H_
 
-#include "db.h"
+#include "core/db.h"
 
 #include <iostream>
 #include <string>
 #include <mutex>
-#include "properties.h"
+#include "core/properties.h"
 
 using std::cout;
 using std::endl;

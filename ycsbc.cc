@@ -11,11 +11,11 @@
 #include <iostream>
 #include <vector>
 #include <future>
-#include "utils.h"
-#include "timer.h"
-#include "client.h"
-#include "core_workload.h"
-#include "db_factory.h"
+#include "core/utils.h"
+#include "core/timer.h"
+#include "core/client.h"
+#include "core/core_workload.h"
+#include "db/db_factory.h"
 
 using namespace std;
 

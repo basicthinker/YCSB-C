@@ -34,12 +34,11 @@ class HashtableDB : public DB {
              std::vector<KVPair> &values);
   int Delete(const std::string &table, const std::string &key);
 
-  virtual ~HashtableDB() = 0;
-
  protected:
+  HashtableDB(KeyHashtable *table) : key_table_(table) { }
+
   virtual FieldHashtable *NewFieldHashtable() = 0;
   virtual void DeleteFieldHashtable(FieldHashtable *table) = 0;
-  virtual KeyHashtable *NewKeyHashtable() = 0;
 
   virtual const char *CopyString(const std::string &str) = 0;
   virtual void DeleteString(const char *str) = 0;
