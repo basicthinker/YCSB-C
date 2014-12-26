@@ -40,9 +40,7 @@ inline String::String(const char *cstr) {
   assert(cstr);
   const size_t len = strlen(cstr); 
   char *hstr = (char *)MALLOC(len + 1);
-  memcpy(hstr, cstr, len);
-  hstr[len] = '\0';
-  set_value(hstr);
+  set_value(strcpy(hstr, cstr));
   assert(length() == len);
 }
 
