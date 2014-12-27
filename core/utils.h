@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <random>
 #include <algorithm>
+#include <exception>
 
 namespace utils {
 
@@ -46,6 +47,16 @@ inline char RandomPrintChar() {
   return rand() % 94 + 33;
 }
 
+class Exception : public std::exception {
+ public:
+  Exception(const std::string &message) : message_(message) { }
+  const char* what() const noexcept {
+    return message_.c_str();
+  }
+ private:
+  std::string message_;
+};
+
 inline bool StrToBool(std::string str) {
   std::transform(str.begin(), str.end(), str.begin(), ::tolower);
   if (str == "true" || str == "1") {
@@ -53,8 +64,14 @@ inline bool StrToBool(std::string str) {
   } else if (str == "false" || str == "0") {
     return false;
   } else {
-    throw "Invalid bool string: " + str;
+    throw Exception("Invalid bool string: " + str);
   }
+}
+
+inline std::string Trim(const std::string &str) {
+  auto front = std::find_if_not(str.begin(), str.end(), [](int c){ return std::isspace(c); });
+  return std::string(front, std::find_if_not(str.rbegin(), std::string::const_reverse_iterator(front),
+      [](int c){ return std::isspace(c); }).base());
 }
 
 } // utils

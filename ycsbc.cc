@@ -23,19 +23,18 @@ void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
 void ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
-double DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
+int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
   ycsbc::Client client(*db, *wl);
-  utils::Timer<double> timer;
-  timer.Start();
+  int oks = 0;
   for (int i = 0; i < num_ops; ++i) {
     if (is_loading) {
-      client.DoInsert();
+      oks += client.DoInsert();
     } else {
-      client.DoTransaction();
+      oks += client.DoTransaction();
     }
   }
-  return timer.End();
+  return oks;
 }
 
 int main(const int argc, const char *argv[]) {
@@ -55,36 +54,40 @@ int main(const int argc, const char *argv[]) {
   const int num_threads = stoi(props["threadcount"]);
 
   // Loads data
-  vector<future<double>> times;
-  int num_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
+  vector<future<int>> actual_ops;
+  int total_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
   for (int i = 0; i < num_threads; ++i) {
-    times.emplace_back(
-        async(launch::async, DelegateClient, db, &wl, num_ops, true));
+    actual_ops.emplace_back(async(launch::async,
+        DelegateClient, db, &wl, total_ops / num_threads, true));
   }
-  assert((int)times.size() == num_threads);
+  assert((int)actual_ops.size() == num_threads);
 
-  double sum = 0.0;
-  for (auto &t : times) {
-    assert(t.valid());
-    sum += t.get();
+  int sum = 0;
+  for (auto &n : actual_ops) {
+    assert(n.valid());
+    sum += n.get();
   }
-  cout << "Loading throughput\t" << num_ops * num_threads / sum << endl;
+  cerr << "Loading # records:\t" << sum << endl;
 
   // Peforms transactions
-  times.clear();
-  num_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
+  actual_ops.clear();
+  total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
+  utils::Timer<double> timer;
+  timer.Start();
   for (int i = 0; i < num_threads; ++i) {
-    times.emplace_back(
-        async(launch::async, DelegateClient, db, &wl, num_ops, false));
+    actual_ops.emplace_back(async(launch::async,
+        DelegateClient, db, &wl, total_ops / num_threads, false));
   }
-  assert((int)times.size() == num_threads);
+  assert((int)actual_ops.size() == num_threads);
 
-  sum = 0.0;
-  for (auto &t : times) {
-    assert(t.valid());
-    sum += t.get();
+  sum = 0;
+  for (auto &n : actual_ops) {
+    assert(n.valid());
+    sum += n.get();
   }
-  cout << "Transaction throughput\t" << num_ops * num_threads / sum << endl;
+  double duration = timer.End();
+  cout << "Transaction throughput (KTPS)\t";
+  cout << total_ops / duration / 1000 << endl;
 }
 
 void ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {

@@ -13,6 +13,7 @@
 #include <map>
 #include <fstream>
 #include <cassert>
+#include "utils.h"
 
 namespace utils {
 
@@ -42,7 +43,7 @@ inline void Properties::SetProperty(const std::string &key,
 }
 
 inline bool Properties::Load(std::ifstream &input) {
-  if (!input.is_open()) throw std::string("Error: file not open!");
+  if (!input.is_open()) throw utils::Exception("File not open!");
 
   while (!input.eof() && !input.bad()) {
     std::string line;
@@ -50,7 +51,7 @@ inline bool Properties::Load(std::ifstream &input) {
     if (line[0] == '#') continue;
     size_t pos = line.find_first_of('=');
     if (pos == std::string::npos) continue;
-    SetProperty(line.substr(0, pos), line.substr(pos + 1));
+    SetProperty(Trim(line.substr(0, pos)), Trim(line.substr(pos + 1)));
   }
   return true;
 }

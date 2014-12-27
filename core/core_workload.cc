@@ -149,7 +149,7 @@ void CoreWorkload::Init(const utils::Properties &p) {
     key_chooser_ = new SkewedLatestGenerator(insert_key_sequence_);
     
   } else {
-    throw std::string("Unknown request distribution \"") + request_dist + "\"";
+    throw utils::Exception("Unknown request distribution: " + request_dist);
   }
   
   field_chooser_ = new UniformGenerator(0, field_count_ - 1);
@@ -159,8 +159,8 @@ void CoreWorkload::Init(const utils::Properties &p) {
   } else if (scan_len_dist == "zipfian") {
     scan_len_chooser_ = new ZipfianGenerator(1, max_scan_len);
   } else {
-    throw std::string("Distribution \"") + scan_len_dist +
-    "\" not allowed for scan length";
+    throw utils::Exception("Distribution not allowed for scan length: " +
+        scan_len_dist);
   }
 }
 
@@ -177,7 +177,8 @@ ycsbc::Generator<uint64_t> *CoreWorkload::GetFieldLenGenerator(
   } else if(field_len_dist == "zipfian") {
     return new ZipfianGenerator(1, field_len);
   } else {
-    throw std::string("Unknown field length distribution: ") + field_len_dist;
+    throw utils::Exception("Unknown field length distribution: " +
+        field_len_dist);
   }
 }
 
