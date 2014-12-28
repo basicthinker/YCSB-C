@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-std=c++11 -c -Wall
-INCLUDES=-I../ -I/home/basicthinker/Projects/sitevm_dune-master
+INCLUDES=-I../ -I/home/basicthinker/Projects/sitevm_dune-master -I/home/basicthinker/Projects/vm-persistence
 REGSRCS=$(wildcard *.cc)
 SVMSRCS=$(wildcard *.cpp)
 OBJECTS=$(REGSRCS:.cc=.o) $(SVMSRCS:.cpp=.o)
