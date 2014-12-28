@@ -21,6 +21,8 @@ class STLHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
+  STLHashtable(std::size_t num_buckets = 11, float max_load_factor = 2.0);
+
   V Get(const char *key) const; ///< Returns NULL if the key is not found
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
@@ -44,6 +46,11 @@ class STLHashtable : public StringHashtable<V> {
   typedef std::unordered_map<String, V, Hash, Equal, A> Hashtable;
   Hashtable table_;
 };
+
+template<class V, class A>
+STLHashtable<V, A>::STLHashtable(std::size_t n, float f) : table_(n) {
+  table_.max_load_factor(f);
+}
 
 template<class V, class A>
 V STLHashtable<V, A>::Get(const char *key) const {

@@ -12,6 +12,7 @@
 #include "db/tbb_db.h"
 #include "db/svm_db.h"
 #include "db/slib_db.h"
+#include "db/lock_slib_db.h"
 
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -27,6 +28,8 @@ DB* DBFactory::CreateDB(const std::string name) {
     return new SVMDB;
   } else if (name == "slib_db") {
     return new SLibDB;
+  } else if (name == "lock_slib_db") {
+    return new LockSLibDB;
   } else return NULL;
 }
 

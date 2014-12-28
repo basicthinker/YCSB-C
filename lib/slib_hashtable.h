@@ -1,5 +1,5 @@
 //
-//  tbb_hashtable.h
+//  slib_hashtable.h
 //
 //  Created by Jinglei Ren on 12/23/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
