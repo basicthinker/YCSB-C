@@ -23,12 +23,9 @@ namespace ycsbc {
 
 class BasicDB : public DB {
  public:
-  void Init(const utils::Properties &props) {
-    cout << "***************** properties *****************" << endl;
-    for (auto p : props.properties()) {
-      cout << "\"" << p.first << "\" = \"" << p.second << "\"" << endl;
-    }
-    cout << "**********************************************" << endl;
+  void Init() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    cout << "A new thread begins working." << endl;
   }
 
   int Read(const std::string &table, const std::string &key,

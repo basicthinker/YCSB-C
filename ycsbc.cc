@@ -25,6 +25,7 @@ void ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
+  db->Init();
   ycsbc::Client client(*db, *wl);
   int oks = 0;
   for (int i = 0; i < num_ops; ++i) {
@@ -34,6 +35,7 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
       oks += client.DoTransaction();
     }
   }
+  db->Close();
   return oks;
 }
 
@@ -46,7 +48,6 @@ int main(const int argc, const char *argv[]) {
     cout << "Unknown database name " << props["dbname"] << endl;
     exit(0);
   }
-  db->Init(props);
 
   ycsbc::CoreWorkload wl;
   wl.Init(props);

@@ -10,7 +10,6 @@
 
 #include "lib/stl_hashtable.h"
 
-#include "sitevm/sitevm.h"
 #include "lib/string.h"
 #include "lib/svm_allocator.h"
 

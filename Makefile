@@ -1,9 +1,10 @@
 CC=g++
 CFLAGS=-std=c++11 -Wall -pthread -I./
-LDFLAGS= -lpthread -ltbb
+LDFLAGS= -L/home/basicthinker/Projects/sitevm_dune-master/bin -L/home/basicthinker/Projects/dune/libdune -lpthread -ltbb -lsitevm -ldune
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
-OBJECTS=$(SUBSRCS: .cc=.o)
+SVMSRCS=$(wildcard db/*.cpp)
+OBJECTS=$(SUBSRCS:.cc=.o) $(SVMSRCS:.cpp=.o)
 EXEC=ycsbc
 
 all: $(SUBDIRS) $(EXEC)

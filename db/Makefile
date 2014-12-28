@@ -1,14 +1,18 @@
 CC=g++
 CFLAGS=-std=c++11 -c -Wall
-INCLUDES=-I../
-LDFLAGS=
-SOURCES=$(wildcard *.cc)
-OBJECTS=$(SOURCES:.cc=.o)
+INCLUDES=-I../ -I/home/basicthinker/Projects/sitevm_dune-master
+REGSRCS=$(wildcard *.cc)
+SVMSRCS=$(wildcard *.cpp)
+OBJECTS=$(REGSRCS:.cc=.o) $(SVMSRCS:.cpp=.o)
 
 all: $(SOURCES) $(OBJECTS)
 
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
 
+.cpp.o:
+	$(CC) $(CFLAGS) -DSVM $(INCLUDES) $< -o $@
+
 clean:
 	$(RM) $(OBJECTS)
+

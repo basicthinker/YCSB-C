@@ -11,7 +11,6 @@
 
 #include <vector>
 #include <string>
-#include "properties.h"
 
 namespace ycsbc {
 
@@ -22,11 +21,15 @@ class DB {
   static const int kErrorNoData = 1;
   static const int kErrorConflict = 2;
   ///
-  /// Initializes any state for this DB.
-  /// Called once per DB instance; there is one DB instance per client thread.
+  /// Initializes any state for accessing this DB.
+  /// Called once per DB client (thread); there is a single DB instance globally.
   ///
-  virtual void Init(const utils::Properties &p) { }
-
+  virtual void Init() { }
+  ///
+  /// Clears any state for accessing this DB.
+  /// Called once per DB client (thread); there is a single DB instance globally.
+  ///
+  virtual void Close() { }
   ///
   /// Reads a record from the database.
   /// Field/value pairs from the result are stored in a vector.
