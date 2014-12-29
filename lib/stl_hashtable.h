@@ -37,10 +37,7 @@ class STLHashtable : public StringHashtable<V> {
   };
 
   struct Equal {
-    bool operator()(const String &a, const String &b) const {
-      if (a.hash() != b.hash()) return false;
-      return strcmp(a.value(), b.value()) == 0;
-    }
+    bool operator()(const String &a, const String &b) const { return a == b; }
   };
 
   typedef std::unordered_map<String, V, Hash, Equal, A> Hashtable;

@@ -30,18 +30,12 @@ class TBBRandHashtable : public StringHashtable<V> {
   std::size_t Size() const { return table_.size(); }
 
  private:
-  struct HashCompare {
-    inline uint64_t hash(const String &hstr) const {
-      return hstr.hash();
-    }
-
-    inline bool equal(const String &a, const String &b) const {
-      if (a.hash() != b.hash()) return false;
-      return strcmp(a.value(), b.value()) == 0;
-    }
+  struct HashEqual {
+    uint64_t hash(const String &hstr) const { return hstr.hash(); }
+    bool equal(const String &a, const String &b) const { return a == b; }
   };
 
-  typedef tbb::concurrent_hash_map<String, V, HashCompare> Hashtable;
+  typedef tbb::concurrent_hash_map<String, V, HashEqual> Hashtable;
 
   Hashtable table_;
   mutable tbb::queuing_rw_mutex mutex_;
@@ -50,6 +44,7 @@ class TBBRandHashtable : public StringHashtable<V> {
 template<class V>
 V TBBRandHashtable<V>::Get(const char *key) const {
   typename Hashtable::accessor result;
+  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (!table_.find(result, String::Wrap(key))) return NULL;
   return result->second;
 }

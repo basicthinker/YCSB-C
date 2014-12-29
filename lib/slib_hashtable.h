@@ -30,14 +30,8 @@ class SLibHashtable : public StringHashtable<V> {
 
  private:
   struct HashEqual {
-    inline uint64_t hash(const String &hstr) const {
-      return hstr.hash();
-    }
-
-    inline bool equal(const String &a, const String &b) const {
-      if (a.hash() != b.hash()) return false;
-      return strcmp(a.value(), b.value()) == 0;
-    }
+    uint64_t hash(const String &hstr) const { return hstr.hash(); }
+    bool equal(const String &a, const String &b) const { return a == b; }
   };
 
   typedef typename

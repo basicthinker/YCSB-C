@@ -28,6 +28,8 @@ class String {
 
   static String Wrap(const char *v);
 
+  bool operator==(const String &other) const;
+
  private:
   uint64_t SDBMHash(const char *str);
 
@@ -63,6 +65,11 @@ inline String String::Wrap(const char *str) {
   String hstr;
   hstr.set_value(str);
   return hstr;
+}
+
+inline bool String::operator ==(const String &other) const {
+  if (hash_ != other.hash()) return false;
+  return strcmp(value_, other.value()) == 0;
 }
 
 } // vmp
