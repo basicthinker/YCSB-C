@@ -1,28 +1,28 @@
 //
-//  tbb_db.h
+//  tbb_rand_db.h
 //  YCSB-C
 //
 //  Created by Jinglei Ren on 12/26/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef YCSB_C_TBB_DB_H_
-#define YCSB_C_TBB_DB_H_
+#ifndef YCSB_C_TBB_RAND_DB_H_
+#define YCSB_C_TBB_RAND_DB_H_
 
 #include "db/hashtable_db.h"
 
 #include <string>
 #include <vector>
-#include "lib/tbb_hashtable.h"
+#include "lib/tbb_rand_hashtable.h"
 
 namespace ycsbc {
 
-class TBBDB : public HashtableDB {
+class TBBRandDB : public HashtableDB {
  public:
-  TBBDB() : HashtableDB(
-      new vmp::TBBHashtable<HashtableDB::FieldHashtable *>) { }
+  TBBRandDB() : HashtableDB(
+      new vmp::TBBRandHashtable<HashtableDB::FieldHashtable *>) { }
 
-  ~TBBDB() {
+  ~TBBRandDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
     for (auto &key_pair : key_pairs) {
       DeleteFieldHashtable(key_pair.second);
@@ -32,7 +32,7 @@ class TBBDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::TBBHashtable<const char *>;
+    return new vmp::TBBRandHashtable<const char *>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
@@ -56,4 +56,4 @@ class TBBDB : public HashtableDB {
 
 } // ycsbc
 
-#endif // YCSB_C_TBB_DB_H_
+#endif // YCSB_C_TBB_RAND_DB_H_
