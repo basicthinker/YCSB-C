@@ -10,7 +10,7 @@
 
 #include <vector>
 #include "sitevm/sitevm.h"
-#include "lib/mem_allocator.h"
+#include "slib/mem_allocator.h"
 #include "lib/trans_def.h"
 
 namespace ycsbc {
@@ -45,7 +45,7 @@ SVMDB::~SVMDB() {
   for (auto &key_pair : key_pairs) {
     DeleteFieldHashtable(key_pair.second);
   }
-  DELETE(StringHashtable<HashtableDB::FieldHashtable *>, key_table_);
+  DELETE(key_table_);
 }
 
 int SVMDB::Read(const std::string &table, const std::string &key,
@@ -102,7 +102,7 @@ void SVMDB::DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
   for (auto &pair : pairs) {
     DeleteString(pair.second);
   }
-  DELETE(StringHashtable<const char *>, table);
+  DELETE(table);
 }
 
 const char *SVMDB::CopyString(const std::string &str) {
@@ -112,7 +112,7 @@ const char *SVMDB::CopyString(const std::string &str) {
 }
 
 void SVMDB::DeleteString(const char *str) {
-  FREE(str);
+  FREE(str, strlen(str) + 1);
 }
 
 } // ycsbc

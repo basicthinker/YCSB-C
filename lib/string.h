@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include "lib/mem_allocator.h"
+#include "slib/mem_allocator.h"
 
 namespace vmp {
 
@@ -27,6 +27,7 @@ class String {
   void set_value(const char *v);
 
   static String Wrap(const char *v);
+  static void Free(const String& str);
 
   bool operator==(const String &other) const;
 
@@ -52,22 +53,26 @@ inline void String::set_value(const char *v) {
   hash_ = SDBMHash(value_);
 }
 
-inline uint64_t String::SDBMHash(const char *str) {
+inline uint64_t String::SDBMHash(const char *cstr) {
   uint64_t hash = 0;
   uint64_t c;
-  while ((c = *str++) != '\0') {
+  while ((c = *cstr++) != '\0') {
     hash = c + (hash << 6) + (hash << 16) - hash;
   }
   return hash;
 }
 
-inline String String::Wrap(const char *str) {
+inline String String::Wrap(const char *cstr) {
   String hstr;
-  hstr.set_value(str);
+  hstr.set_value(cstr);
   return hstr;
 }
 
-inline bool String::operator ==(const String &other) const {
+inline void String::Free(const String& hstr) {
+  FREE(hstr.value(), hstr.length() + 1);
+}
+
+inline bool String::operator==(const String &other) const {
   if (hash_ != other.hash()) return false;
   return strcmp(value_, other.value()) == 0;
 }

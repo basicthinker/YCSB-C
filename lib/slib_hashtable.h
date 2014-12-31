@@ -11,7 +11,7 @@
 #include "hashtable.h"
 
 #include "lib/string_hashtable.h"
-#include "slib/core_hashtable.h"
+#include "slib/hashtable.h"
 #include "lib/string.h"
 
 namespace vmp {
@@ -63,7 +63,7 @@ template<class V>
 V SLibHashtable<V>::Remove(const char *key) {
   std::pair<String, V> removed;
   if (!table_.erase(String::Wrap(key), removed)) return NULL;
-  FREE(removed.first.value());
+  String::Free(removed.first);
   return removed.second;
 }
 

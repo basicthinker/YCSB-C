@@ -76,7 +76,7 @@ template<class V, class A>
 V STLHashtable<V, A>::Remove(const char *key) {
   typename Hashtable::const_iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
-  FREE(pos->first.value());
+  String::Free(pos->first);
   V old = pos->second;
   table_.erase(pos);
   return old;

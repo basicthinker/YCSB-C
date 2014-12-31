@@ -75,7 +75,7 @@ V TBBRandHashtable<V>::Remove(const char *key) {
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (table_.find(result, String::Wrap(key))) {
-    FREE(result->first.value());
+    String::Free(result->first);
     old = result->second;
     table_.erase(result);
   }

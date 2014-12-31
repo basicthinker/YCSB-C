@@ -74,7 +74,7 @@ V TBBScanHashtable<V>::Remove(const char *key) {
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
   if (it != table_.end()) {
-    FREE(it->first.value());
+    String::Free(it->first);
     old = it->second;
     table_.unsafe_erase(it);
   }
