@@ -21,7 +21,7 @@ using namespace std;
 
 void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
-void ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
+string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
@@ -41,7 +41,7 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
 
 int main(const int argc, const char *argv[]) {
   utils::Properties props;
-  ParseCommandLine(argc, argv, props);
+  string file_name = ParseCommandLine(argc, argv, props);
 
   ycsbc::DB *db = ycsbc::DBFactory::CreateDB(props["dbname"]);
   if (!db) {
@@ -68,7 +68,7 @@ int main(const int argc, const char *argv[]) {
     assert(n.valid());
     sum += n.get();
   }
-  cerr << "Loading # records:\t" << sum << endl;
+  cerr << "# Loading records:\t" << sum << endl;
 
   // Peforms transactions
   actual_ops.clear();
@@ -87,12 +87,14 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   double duration = timer.End();
-  cout << "Transaction throughput (KTPS)\t";
-  cout << total_ops / duration / 1000 << endl;
+  cerr << "# Transaction throughput (KTPS)" << endl;
+  cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
+  cerr << total_ops / duration / 1000 << endl;
 }
 
-void ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
+string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
   int argindex = 1;
+  string filename;
   while (argindex < argc && StrStartWith(argv[argindex], "-")) {
     if (strcmp(argv[argindex], "-threads") == 0) {
       argindex++;
@@ -116,7 +118,7 @@ void ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
         UsageMessage(argv[0]);
         exit(0);
       }
-
+      filename.assign(argv[argindex]);
       ifstream input(argv[argindex]);
       try {
         props.Load(input);
@@ -136,6 +138,8 @@ void ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
     UsageMessage(argv[0]);
     exit(0);
   }
+
+  return filename;
 }
 
 void UsageMessage(const char *command) {

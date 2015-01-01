@@ -21,6 +21,7 @@ template<class V>
 class TbbScanHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
+  TbbScanHashtable() { table_.max_load_factor(2.0); }
 
   V Get(const char *key) const; ///< Returns NULL if the key is not found
   bool Insert(const char *key, V value);
