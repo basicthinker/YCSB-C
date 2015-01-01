@@ -22,10 +22,10 @@ namespace vmp {
 ///
 template<class V>
 class SVMHashtable
-      : public STLHashtable<V, SVMAllocator<std::pair<String, V>>> {
+      : public STLHashtable<V, SVMAlloc, SVMAllocator<std::pair<String, V>>> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
-  typedef SVMAllocator<std::pair<String, V>> Allocator;
+  typedef SVMAllocator<std::pair<String, V>> PairAlloc;
 
   V Get(const char *key) const; ///< Returns NULL if the key is not found
   bool Insert(const char *key, V value);
@@ -37,33 +37,33 @@ class SVMHashtable
 
 template<class V>
 V SVMHashtable<V>::Get(const char *key) const {
-  return STLHashtable<V, Allocator>::Get(key);
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Get(key);
 }
 
 template<class V>
 bool SVMHashtable<V>::Insert(const char *key, V value) {
-  return STLHashtable<V, Allocator>::Insert(key, value);
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Insert(key, value);
 }
 
 template<class V>
 V SVMHashtable<V>::Update(const char *key, V value) {
-  return STLHashtable<V, Allocator>::Update(key, value);
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Update(key, value);
 }
 
 template<class V>
 V SVMHashtable<V>::Remove(const char *key) {
-  return STLHashtable<V, Allocator>::Remove(key);
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Remove(key);
 }
 
 template<class V>
 std::size_t SVMHashtable<V>::Size() const {
-  return STLHashtable<V, Allocator>::Size();
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Size();
 }
 
 template<class V>
 std::vector<typename SVMHashtable<V>::KVPair> SVMHashtable<V>::Entries(
     const char *key, size_t n) const {
-  return STLHashtable<V, Allocator>::Entries(key, n);
+  return STLHashtable<V, SVMAlloc, PairAlloc>::Entries(key, n);
 }
 
 } // vmp

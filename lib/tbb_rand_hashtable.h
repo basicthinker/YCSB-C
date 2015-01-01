@@ -52,7 +52,7 @@ V TBBRandHashtable<V>::Get(const char *key) const {
 template<class V>
 bool TBBRandHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
-  String skey(key);
+  String skey = String::Copy<MemAlloc>(key);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   return table_.insert(std::make_pair(skey, value));
 }
@@ -75,7 +75,7 @@ V TBBRandHashtable<V>::Remove(const char *key) {
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (table_.find(result, String::Wrap(key))) {
-    String::Free(result->first);
+    String::Free<MemAlloc>(result->first);
     old = result->second;
     table_.erase(result);
   }

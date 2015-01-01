@@ -13,20 +13,24 @@
 #include <cassert>
 #include <cstdint>
 
-#include "slib/mem_allocator.h"
+#include "slib/mem_alloc.h"
 
 namespace vmp {
 
 class String {
  public:
   String() : hash_(0), value_(NULL), len_(0) { }
-  explicit String(const char *str);
   uint64_t hash() const { return hash_; }
   const char *value() const { return value_; }
   size_t length() const { return len_; }
   void set_value(const char *v);
 
+  template <class Alloc>
+  static String Copy(const char *v);
+
   static String Wrap(const char *v);
+
+  template <class Alloc>
   static void Free(const String& str);
 
   bool operator==(const String &other) const;
@@ -38,14 +42,6 @@ class String {
   const char *value_;
   size_t len_;
 };
-
-inline String::String(const char *cstr) {
-  assert(cstr);
-  const size_t len = strlen(cstr); 
-  char *hstr = (char *)MALLOC(len + 1);
-  set_value(strcpy(hstr, cstr));
-  assert(length() == len);
-}
 
 inline void String::set_value(const char *v) {
   value_ = v;
@@ -62,14 +58,27 @@ inline uint64_t String::SDBMHash(const char *cstr) {
   return hash;
 }
 
+template <class Alloc>
+inline String String::Copy(const char *cstr) {
+  assert(cstr);
+  String hstr;
+  const size_t len = strlen(cstr); 
+  char *str = (char *)Alloc::Malloc(len + 1);
+  hstr.set_value(strcpy(str, cstr));
+  assert(hstr.length() == len);
+  return hstr;
+}
+
 inline String String::Wrap(const char *cstr) {
+  assert(cstr);
   String hstr;
   hstr.set_value(cstr);
   return hstr;
 }
 
+template <class Alloc>
 inline void String::Free(const String& hstr) {
-  FREE(hstr.value(), hstr.length() + 1);
+  Alloc::Free(hstr.value(), hstr.length() + 1);
 }
 
 inline bool String::operator==(const String &other) const {

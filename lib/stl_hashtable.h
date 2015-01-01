@@ -16,7 +16,8 @@
 
 namespace vmp {
 
-template <class V, class A = std::allocator<std::pair<String, V>>>
+template <class V, class MA = MemAlloc,
+    class PA = std::allocator<std::pair<String, V>>>
 class STLHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
@@ -40,31 +41,31 @@ class STLHashtable : public StringHashtable<V> {
     bool operator()(const String &a, const String &b) const { return a == b; }
   };
 
-  typedef std::unordered_map<String, V, Hash, Equal, A> Hashtable;
+  typedef std::unordered_map<String, V, Hash, Equal, PA> Hashtable;
   Hashtable table_;
 };
 
-template<class V, class A>
-STLHashtable<V, A>::STLHashtable(std::size_t n, float f) : table_(n) {
+template<class V, class MA, class PA>
+STLHashtable<V, MA, PA>::STLHashtable(std::size_t n, float f) : table_(n) {
   table_.max_load_factor(f);
 }
 
-template<class V, class A>
-V STLHashtable<V, A>::Get(const char *key) const {
+template<class V, class MA, class PA>
+V STLHashtable<V, MA, PA>::Get(const char *key) const {
   typename Hashtable::const_iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
   else return pos->second;
 }
 
-template<class V, class A>
-bool STLHashtable<V, A>::Insert(const char *key, V value) {
+template<class V, class MA, class PA>
+bool STLHashtable<V, MA, PA>::Insert(const char *key, V value) {
   if (!key) return false;
-  String skey(key);
+  String skey = String::Copy<MA>(key);
   return table_.insert(std::make_pair(skey, value)).second;
 }
 
-template<class V, class A>
-V STLHashtable<V, A>::Update(const char *key, V value) {
+template<class V, class MA, class PA>
+V STLHashtable<V, MA, PA>::Update(const char *key, V value) {
   typename Hashtable::iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
   V old = pos->second;
@@ -72,19 +73,19 @@ V STLHashtable<V, A>::Update(const char *key, V value) {
   return old;
 }
 
-template<class V, class A>
-V STLHashtable<V, A>::Remove(const char *key) {
+template<class V, class MA, class PA>
+V STLHashtable<V, MA, PA>::Remove(const char *key) {
   typename Hashtable::const_iterator pos = table_.find(String::Wrap(key));
   if (pos == table_.end()) return NULL;
-  String::Free(pos->first);
+  String::Free<MA>(pos->first);
   V old = pos->second;
   table_.erase(pos);
   return old;
 }
 
-template<class V, class A>
-std::vector<typename STLHashtable<V, A>::KVPair> STLHashtable<V, A>::Entries(
-    const char *key, size_t n) const {
+template<class V, class MA, class PA>
+std::vector<typename STLHashtable<V, MA, PA>::KVPair>
+STLHashtable<V, MA, PA>::Entries(const char *key, size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
   if (!key) {
@@ -101,3 +102,4 @@ std::vector<typename STLHashtable<V, A>::KVPair> STLHashtable<V, A>::Entries(
 } // vmp
 
 #endif // VM_PERSISTENCE_STL_HASHTABLE_H_
+

@@ -16,7 +16,7 @@
 
 namespace vmp {
 
-template<class V>
+template <typename V, class Alloc>
 class SLibHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
@@ -35,41 +35,41 @@ class SLibHashtable : public StringHashtable<V> {
   };
 
   typedef typename
-      slib::hashtable<String, V, HashEqual> Hashtable;
+      slib::hashtable<String, V, HashEqual, Alloc> Hashtable;
   Hashtable table_;
 };
 
-template<class V>
-V SLibHashtable<V>::Get(const char *key) const {
+template <typename V, class Alloc>
+V SLibHashtable<V, Alloc>::Get(const char *key) const {
   V value;
   if (!table_.find(String::Wrap(key), value)) return NULL;
   else return value;
 }
 
-template<class V>
-bool SLibHashtable<V>::Insert(const char *key, V value) {
+template <typename V, class Alloc>
+bool SLibHashtable<V, Alloc>::Insert(const char *key, V value) {
   if (!key) return false;
-  String skey(key);
+  String skey = String::Copy<Alloc>(key);
   return table_.insert(skey, value);
 }
 
-template<class V>
-V SLibHashtable<V>::Update(const char *key, V value) {
+template <typename V, class Alloc>
+V SLibHashtable<V, Alloc>::Update(const char *key, V value) {
   if (!table_.update(String::Wrap(key), value)) return NULL;
   return value;
 }
 
-template<class V>
-V SLibHashtable<V>::Remove(const char *key) {
+template <typename V, class Alloc>
+V SLibHashtable<V, Alloc>::Remove(const char *key) {
   std::pair<String, V> removed;
   if (!table_.erase(String::Wrap(key), removed)) return NULL;
-  String::Free(removed.first);
+  String::Free<Alloc>(removed.first);
   return removed.second;
 }
 
-template<class V>
-std::vector<typename SLibHashtable<V>::KVPair> SLibHashtable<V>::Entries(
-    const char *key, size_t n) const {
+template <typename V, class Alloc>
+std::vector<typename SLibHashtable<V, Alloc>::KVPair>
+SLibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
   String skey;
   std::vector<std::pair<String, V>> entries = table_.entries(
       (key ? skey = String::Wrap(key), &skey : NULL), n);

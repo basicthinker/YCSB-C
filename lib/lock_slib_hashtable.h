@@ -8,6 +8,7 @@
 #ifndef VM_PERSISTENCE_LOCK_SLIB_HASHTABLE_H_
 #define VM_PERSISTENCE_LOCK_SLIB_HASHTABLE_H_
 
+#include "slib/mem_alloc.h"
 #include "lib/slib_hashtable.h"
 
 #include <vector>
@@ -16,7 +17,7 @@
 namespace vmp {
 
 template<class V>
-class LockSLibHashtable : public SLibHashtable<V> {
+class LockSLibHashtable : public SLibHashtable<V, MemAlloc> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -34,38 +35,38 @@ class LockSLibHashtable : public SLibHashtable<V> {
 template<class V>
 inline V LockSLibHashtable<V>::Get(const char *key) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Get(key);
+  return SLibHashtable<V, MemAlloc>::Get(key);
 }
 
 template<class V>
 inline bool LockSLibHashtable<V>::Insert(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Insert(key, value);
+  return SLibHashtable<V, MemAlloc>::Insert(key, value);
 }
 
 template<class V>
 inline V LockSLibHashtable<V>::Update(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Update(key, value);
+  return SLibHashtable<V, MemAlloc>::Update(key, value);
 }
 
 template<class V>
 inline V LockSLibHashtable<V>::Remove(const char *key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Remove(key);
+  return SLibHashtable<V, MemAlloc>::Remove(key);
 }
 
 template<class V>
 inline std::size_t LockSLibHashtable<V>::Size() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Size();
+  return SLibHashtable<V, MemAlloc>::Size();
 }
 
 template<class V>
 inline std::vector<typename LockSLibHashtable<V>::KVPair> LockSLibHashtable<V>::Entries(
     const char *key, size_t n) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V>::Entries(key, n);
+  return SLibHashtable<V, MemAlloc>::Entries(key, n);
 }
 
 } // vmp
