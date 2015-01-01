@@ -84,12 +84,12 @@ V TbbScanHashtable<V>::Remove(const char *key) {
 
 template<class V>
 std::vector<typename TbbScanHashtable<V>::KVPair> TbbScanHashtable<V>::Entries(
-    const char *key, size_t n) const {
+    const char *key, std::size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   pos = key ? table_.equal_range(String::Wrap(key)).first : table_.begin();
-  for (int i = 0; pos != table_.end() && i < n; ++pos, ++i) {
+  for (std::size_t i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));
   }
   return pairs;

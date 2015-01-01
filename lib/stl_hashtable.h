@@ -85,7 +85,7 @@ V StlHashtable<V, MA, PA>::Remove(const char *key) {
 
 template<class V, class MA, class PA>
 std::vector<typename StlHashtable<V, MA, PA>::KVPair>
-StlHashtable<V, MA, PA>::Entries(const char *key, size_t n) const {
+StlHashtable<V, MA, PA>::Entries(const char *key, std::size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
   if (!key) {
@@ -93,7 +93,7 @@ StlHashtable<V, MA, PA>::Entries(const char *key, size_t n) const {
   } else {
     pos = table_.find(String::Wrap(key));
   }
-  for (int i = 0; pos != table_.end() && i < n; ++pos, ++i) {
+  for (std::size_t i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));
   }
   return pairs;

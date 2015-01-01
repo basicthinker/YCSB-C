@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-std=c++11 -c -g -Wall
-INCLUDES=-I../ -I/home/basicthinker/Projects/sitevm_dune-master -I/home/basicthinker/Projects/vm-persistence
+INCLUDES=-I../ -I/home/jinglei/Projects/sitevm_dune-master -I/home/jinglei/Projects/vm-persistence
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(SOURCES:.cc=.o)
 
