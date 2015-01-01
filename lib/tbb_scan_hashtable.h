@@ -59,7 +59,7 @@ bool TbbScanHashtable<V>::Insert(const char *key, V value) {
 template<class V>
 V TbbScanHashtable<V>::Update(const char *key, V value) {
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
+  tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
   if (it != table_.end()) {
     old = it->second;
