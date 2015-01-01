@@ -5,8 +5,8 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef VM_PERSISTENCE_STRING_HASHTABLE_H_
-#define VM_PERSISTENCE_STRING_HASHTABLE_H_
+#ifndef YCSB_C_LIB_STRING_HASHTABLE_H_
+#define YCSB_C_LIB_STRING_HASHTABLE_H_
 
 #include <vector>
 
@@ -30,5 +30,5 @@ class StringHashtable {
 
 } // vmp
 
-#endif // VM_PERSISTENCE_STRING_HASHTABLE_H_
+#endif // YCSB_C_LIB_STRING_HASHTABLE_H_
 

@@ -5,8 +5,8 @@
 // Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef VM_PERSISTENCE_TBB_SCAN_HASHTABLE_H_
-#define VM_PERSISTENCE_TBB_SCAN_HASHTABLE_H_
+#ifndef YCSB_C_LIB_TBB_SCAN_HASHTABLE_H_
+#define YCSB_C_LIB_TBB_SCAN_HASHTABLE_H_
 
 #include "lib/string_hashtable.h"
 
@@ -18,7 +18,7 @@
 namespace vmp {
 
 template<class V>
-class TBBScanHashtable : public StringHashtable<V> {
+class TbbScanHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -41,7 +41,7 @@ class TBBScanHashtable : public StringHashtable<V> {
 };
 
 template<class V>
-V TBBScanHashtable<V>::Get(const char *key) const {
+V TbbScanHashtable<V>::Get(const char *key) const {
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   typename Hashtable::const_iterator it = table_.find(String::Wrap(key));
   if (it == table_.end()) return NULL;
@@ -49,7 +49,7 @@ V TBBScanHashtable<V>::Get(const char *key) const {
 }
 
 template<class V>
-bool TBBScanHashtable<V>::Insert(const char *key, V value) {
+bool TbbScanHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
   String skey = String::Copy<MemAlloc>(key);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
@@ -57,9 +57,9 @@ bool TBBScanHashtable<V>::Insert(const char *key, V value) {
 }
 
 template<class V>
-V TBBScanHashtable<V>::Update(const char *key, V value) {
+V TbbScanHashtable<V>::Update(const char *key, V value) {
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
+  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
   if (it != table_.end()) {
     old = it->second;
@@ -69,7 +69,7 @@ V TBBScanHashtable<V>::Update(const char *key, V value) {
 }
 
 template<class V>
-V TBBScanHashtable<V>::Remove(const char *key) {
+V TbbScanHashtable<V>::Remove(const char *key) {
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
@@ -82,7 +82,7 @@ V TBBScanHashtable<V>::Remove(const char *key) {
 }
 
 template<class V>
-std::vector<typename TBBScanHashtable<V>::KVPair> TBBScanHashtable<V>::Entries(
+std::vector<typename TbbScanHashtable<V>::KVPair> TbbScanHashtable<V>::Entries(
     const char *key, size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
@@ -96,5 +96,5 @@ std::vector<typename TBBScanHashtable<V>::KVPair> TBBScanHashtable<V>::Entries(
 
 } // vmp
 
-#endif // VM_PERSISTENCE_TBB_SCAN_HASHTABLE_H_
+#endif // YCSB_C_LIB_TBB_SCAN_HASHTABLE_H_
 

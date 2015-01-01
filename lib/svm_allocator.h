@@ -18,8 +18,8 @@
     reasons why the executable file might be covered by the GNU General Public License.
 */
 
-#ifndef VM_PERSISTENCE_SVM_ALLOCATOR_H_
-#define VM_PERSISTENCE_SVM_ALLOCATOR_H_
+#ifndef YCSB_C_LIB_SVM_ALLOCATOR_H_
+#define YCSB_C_LIB_SVM_ALLOCATOR_H_
 
 #include "sitevm/sitevm_malloc.h"
 
@@ -30,7 +30,7 @@
     of the ISO C++ standard.
     @ingroup memory_allocation */
 template <typename T>
-class SVMAllocator {
+class SvmAllocator {
  public:
   typedef T value_type;
   typedef value_type* pointer;
@@ -40,12 +40,12 @@ class SVMAllocator {
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
   template<typename U> struct rebind {
-    typedef SVMAllocator<U> other;
+    typedef SvmAllocator<U> other;
   };
 
-  SVMAllocator() throw() { }
-  SVMAllocator(const SVMAllocator &other) throw() { }
-  template<typename U> SVMAllocator(const SVMAllocator<U> &other) throw() { }
+  SvmAllocator() throw() { }
+  SvmAllocator(const SvmAllocator &other) throw() { }
+  template<typename U> SvmAllocator(const SvmAllocator<U> &other) throw() { }
 
   pointer address(reference x) const { return &x; }
   const_pointer address(const_reference x) const { return &x; }
@@ -90,25 +90,25 @@ class SVMAllocator {
 //! Analogous to std::allocator<void>, as defined in ISO C++ Standard, Section 20.4.1
 /** @ingroup memory_allocation */
 template<> 
-class SVMAllocator<void> {
+class SvmAllocator<void> {
  public:
   typedef void* pointer;
   typedef const void* const_pointer;
   typedef void value_type;
   template<typename U> struct rebind {
-    typedef SVMAllocator<U> other;
+    typedef SvmAllocator<U> other;
   };
 };
 
 template<typename T, typename U>
-inline bool operator==(const SVMAllocator<T> &a, const SVMAllocator<U> &b) {
+inline bool operator==(const SvmAllocator<T> &a, const SvmAllocator<U> &b) {
   return true;
 }
 
 template<typename T, typename U>
-inline bool operator!=(const SVMAllocator<T> &a, const SVMAllocator<U> &b) {
+inline bool operator!=(const SvmAllocator<T> &a, const SvmAllocator<U> &b) {
   return false;
 }
 
-#endif // VM_PERSISTENCE_SVM_ALLOCATOR_H_
+#endif // YCSB_C_LIB_SVM_ALLOCATOR_H_
 

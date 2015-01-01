@@ -1,12 +1,12 @@
 //
-//  lock_hashtable.h
+//  lock_stl_hashtable.h
 //
 //  Created by Jinglei Ren on 12/22/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>
 //
 
-#ifndef VM_PERSISTENCE_LOCK_HASHTABLE_H_
-#define VM_PERSISTENCE_LOCK_HASHTABLE_H_
+#ifndef YCSB_C_LIB_LOCK_STL_HASHTABLE_H_
+#define YCSB_C_LIB_LOCK_STL_HASHTABLE_H_
 
 #include "lib/stl_hashtable.h"
 
@@ -16,7 +16,7 @@
 namespace vmp {
 
 template<class V>
-class LockHashtable : public STLHashtable<V> {
+class LockStlHashtable : public StlHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -32,43 +32,43 @@ class LockHashtable : public STLHashtable<V> {
 };
 
 template<class V>
-inline V LockHashtable<V>::Get(const char *key) const {
+inline V LockStlHashtable<V>::Get(const char *key) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Get(key);
+  return StlHashtable<V>::Get(key);
 }
 
 template<class V>
-inline bool LockHashtable<V>::Insert(const char *key, V value) {
+inline bool LockStlHashtable<V>::Insert(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Insert(key, value);
+  return StlHashtable<V>::Insert(key, value);
 }
 
 template<class V>
-inline V LockHashtable<V>::Update(const char *key, V value) {
+inline V LockStlHashtable<V>::Update(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Update(key, value);
+  return StlHashtable<V>::Update(key, value);
 }
 
 template<class V>
-inline V LockHashtable<V>::Remove(const char *key) {
+inline V LockStlHashtable<V>::Remove(const char *key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Remove(key);
+  return StlHashtable<V>::Remove(key);
 }
 
 template<class V>
-inline std::size_t LockHashtable<V>::Size() const {
+inline std::size_t LockStlHashtable<V>::Size() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Size();
+  return StlHashtable<V>::Size();
 }
 
 template<class V>
-inline std::vector<typename LockHashtable<V>::KVPair> LockHashtable<V>::Entries(
-    const char *key, size_t n) const {
+inline std::vector<typename LockStlHashtable<V>::KVPair>
+LockStlHashtable<V>::Entries(const char *key, size_t n) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return STLHashtable<V>::Entries(key, n);
+  return StlHashtable<V>::Entries(key, n);
 }
 
 } // vmp
 
-#endif // VM_PERSISTENCE_LOCK_HASHTABLE_H_
+#endif // YCSB_C_LIB_LOCK_STL_HASHTABLE_H_
 

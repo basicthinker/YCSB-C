@@ -17,12 +17,12 @@
 
 namespace ycsbc {
 
-class TBBRandDB : public HashtableDB {
+class TbbRandDB : public HashtableDB {
  public:
-  TBBRandDB() : HashtableDB(
-      new vmp::TBBRandHashtable<HashtableDB::FieldHashtable *>) { }
+  TbbRandDB() : HashtableDB(
+      new vmp::TbbRandHashtable<HashtableDB::FieldHashtable *>) { }
 
-  ~TBBRandDB() {
+  ~TbbRandDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
     for (auto &key_pair : key_pairs) {
       DeleteFieldHashtable(key_pair.second);
@@ -32,7 +32,7 @@ class TBBRandDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::TBBRandHashtable<const char *>;
+    return new vmp::TbbRandHashtable<const char *>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {

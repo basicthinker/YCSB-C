@@ -5,8 +5,8 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef VM_PERSISTENCE_SLIB_HASHTABLE_H_
-#define VM_PERSISTENCE_SLIB_HASHTABLE_H_
+#ifndef YCSB_C_LIB_SLIB_HASHTABLE_H_
+#define YCSB_C_LIB_SLIB_HASHTABLE_H_
 
 #include "hashtable.h"
 
@@ -17,7 +17,7 @@
 namespace vmp {
 
 template <typename V, class Alloc>
-class SLibHashtable : public StringHashtable<V> {
+class SlibHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -40,27 +40,27 @@ class SLibHashtable : public StringHashtable<V> {
 };
 
 template <typename V, class Alloc>
-V SLibHashtable<V, Alloc>::Get(const char *key) const {
+V SlibHashtable<V, Alloc>::Get(const char *key) const {
   V value;
   if (!table_.find(String::Wrap(key), value)) return NULL;
   else return value;
 }
 
 template <typename V, class Alloc>
-bool SLibHashtable<V, Alloc>::Insert(const char *key, V value) {
+bool SlibHashtable<V, Alloc>::Insert(const char *key, V value) {
   if (!key) return false;
   String skey = String::Copy<Alloc>(key);
   return table_.insert(skey, value);
 }
 
 template <typename V, class Alloc>
-V SLibHashtable<V, Alloc>::Update(const char *key, V value) {
+V SlibHashtable<V, Alloc>::Update(const char *key, V value) {
   if (!table_.update(String::Wrap(key), value)) return NULL;
   return value;
 }
 
 template <typename V, class Alloc>
-V SLibHashtable<V, Alloc>::Remove(const char *key) {
+V SlibHashtable<V, Alloc>::Remove(const char *key) {
   std::pair<String, V> removed;
   if (!table_.erase(String::Wrap(key), removed)) return NULL;
   String::Free<Alloc>(removed.first);
@@ -68,8 +68,8 @@ V SLibHashtable<V, Alloc>::Remove(const char *key) {
 }
 
 template <typename V, class Alloc>
-std::vector<typename SLibHashtable<V, Alloc>::KVPair>
-SLibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
+std::vector<typename SlibHashtable<V, Alloc>::KVPair>
+SlibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
   String skey;
   std::vector<std::pair<String, V>> entries = table_.entries(
       (key ? skey = String::Wrap(key), &skey : NULL), n);
@@ -82,5 +82,5 @@ SLibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
 
 } // vmp
 
-#endif // VM_PERSISTENCE_SLIB_HASHTABLE_H_
+#endif // YCSB_C_LIB_SLIB_HASHTABLE_H_
 

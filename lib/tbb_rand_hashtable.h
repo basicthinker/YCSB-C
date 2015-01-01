@@ -5,8 +5,8 @@
 // Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef VM_PERSISTENCE_TBB_RAND_HASHTABLE_H_
-#define VM_PERSISTENCE_TBB_RAND_HASHTABLE_H_
+#ifndef YCSB_C_LIB_TBB_RAND_HASHTABLE_H_
+#define YCSB_C_LIB_TBB_RAND_HASHTABLE_H_
 
 #include "lib/string_hashtable.h"
 
@@ -18,7 +18,7 @@
 namespace vmp {
 
 template<class V>
-class TBBRandHashtable : public StringHashtable<V> {
+class TbbRandHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -42,7 +42,7 @@ class TBBRandHashtable : public StringHashtable<V> {
 };
 
 template<class V>
-V TBBRandHashtable<V>::Get(const char *key) const {
+V TbbRandHashtable<V>::Get(const char *key) const {
   typename Hashtable::accessor result;
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (!table_.find(result, String::Wrap(key))) return NULL;
@@ -50,7 +50,7 @@ V TBBRandHashtable<V>::Get(const char *key) const {
 }
 
 template<class V>
-bool TBBRandHashtable<V>::Insert(const char *key, V value) {
+bool TbbRandHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
   String skey = String::Copy<MemAlloc>(key);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
@@ -58,7 +58,7 @@ bool TBBRandHashtable<V>::Insert(const char *key, V value) {
 }
 
 template<class V>
-V TBBRandHashtable<V>::Update(const char *key, V value) {
+V TbbRandHashtable<V>::Update(const char *key, V value) {
   typename Hashtable::accessor result;
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
@@ -70,7 +70,7 @@ V TBBRandHashtable<V>::Update(const char *key, V value) {
 }
 
 template<class V>
-V TBBRandHashtable<V>::Remove(const char *key) {
+V TbbRandHashtable<V>::Remove(const char *key) {
   typename Hashtable::accessor result;
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
@@ -83,7 +83,7 @@ V TBBRandHashtable<V>::Remove(const char *key) {
 }
 
 template<class V>
-std::vector<typename TBBRandHashtable<V>::KVPair> TBBRandHashtable<V>::Entries(
+std::vector<typename TbbRandHashtable<V>::KVPair> TbbRandHashtable<V>::Entries(
     const char *key, size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
@@ -97,5 +97,5 @@ std::vector<typename TBBRandHashtable<V>::KVPair> TBBRandHashtable<V>::Entries(
 
 } // vmp
 
-#endif // VM_PERSISTENCE_TBB_RAND_HASHTABLE_H_
+#endif // YCSB_C_LIB_TBB_RAND_HASHTABLE_H_
 

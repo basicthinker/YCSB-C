@@ -1,5 +1,5 @@
 //
-//  svm_db.h
+//  svm_stl_db.h
 //  YCSB-C
 //
 //  Created by Jinglei Ren on 12/27/14.
@@ -13,18 +13,15 @@
 
 #include <string>
 #include "sitevm/sitevm_malloc.h"
-#include "lib/svm_hashtable.h"
 
 namespace ycsbc {
 
-const std::size_t gSVMSize = 0x200000000;
-
-class SVMDB : public HashtableDB {
+class SvmStlDB : public HashtableDB {
  public:
-  SVMDB();
+  SvmStlDB();
   void Init();
   void Close();
-  ~SVMDB();
+  ~SvmStlDB();
 
   int Read(const std::string &table, const std::string &key,
            const std::vector<std::string> *fields,

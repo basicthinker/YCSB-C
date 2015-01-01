@@ -1,28 +1,27 @@
 //
-//  slib_db.h
+//  svm_slib_db.h
 //  YCSB-C
 //
 //  Created by Jinglei Ren on 12/27/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef YCSB_C_SLIB_DB_H_
-#define YCSB_C_SLIB_DB_H_
+#ifndef YCSB_C_SVM_SLIB_DB_H_
+#define YCSB_C_SVM_SLIB_DB_H_
 
 #include "db/hashtable_db.h"
 
 #include <string>
 #include "sitevm/sitevm_malloc.h"
-#include "lib/slib_hashtable.h"
 
 namespace ycsbc {
 
-class SLibDB : public HashtableDB {
+class SvmSlibDB : public HashtableDB {
  public:
-  SLibDB();
+  SvmSlibDB();
   void Init();
   void Close();
-  ~SLibDB();
+  ~SvmSlibDB();
 
   int Read(const std::string &table, const std::string &key,
            const std::vector<std::string> *fields,
@@ -46,4 +45,5 @@ class SLibDB : public HashtableDB {
 
 } // ycsbc
 
-#endif // YCSB_C_SLIB_DB_H_
+#endif // YCSB_C_SVM_SLIB_DB_H_
+

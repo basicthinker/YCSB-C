@@ -5,8 +5,8 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef VM_PERSISTENCE_HASH_STRING_H_
-#define VM_PERSISTENCE_HASH_STRING_H_
+#ifndef YCSB_C_LIB_HASH_STRING_H_
+#define YCSB_C_LIB_HASH_STRING_H_
 
 #include <cstdlib>
 #include <cstring>
@@ -88,5 +88,5 @@ inline bool String::operator==(const String &other) const {
 
 } // vmp
 
-#endif // VM_PERSISTENCE_HASH_STRING_H_
+#endif // YCSB_C_LIB_HASH_STRING_H_
 

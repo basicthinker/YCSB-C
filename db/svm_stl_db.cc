@@ -1,23 +1,24 @@
 //
-//  svm_db.cc
+//  svm_stl_db.cc
 //  YCSB-C
 //
 //  Created by Jinglei Ren on 12/27/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#include "db/svm_db.h"
+#include "db/svm_stl_db.h"
 
 #include <vector>
 #include "sitevm/sitevm.h"
 #include "slib/mem_alloc.h"
+#include "lib/svm_stl_hashtable.h"
 #include "lib/trans_def.h"
 
-using vmp::SVMHashtable;
+using vmp::SvmHashtable;
 
 namespace ycsbc {
 
-SVMDB::SVMDB() : HashtableDB(NULL) {
+SvmStlDB::SvmStlDB() : HashtableDB(NULL) {
   int err = sitevm_init();
   assert(!err);
   svm_ = sitevm_seg_create(NULL, SVM_SIZE);
@@ -26,31 +27,31 @@ SVMDB::SVMDB() : HashtableDB(NULL) {
   assert(!err);
   err = sitevm_open_and_update(svm_);
   assert(!err);
-  key_table_ = SVMAlloc::New<SVMHashtable<HashtableDB::FieldHashtable *>>();
+  key_table_ = SvmAlloc::New<SvmHashtable<HashtableDB::FieldHashtable *>>();
   err = sitevm_commit_and_update(svm_);
   assert(!err);
 }
 
-void SVMDB::Init() {
+void SvmStlDB::Init() {
   int err = sitevm_enter();
   assert(!err);
   err = sitevm_open_and_update(svm_);
   assert(!err);
 }
 
-void SVMDB::Close() {
+void SvmStlDB::Close() {
   sitevm_exit();
 }
 
-SVMDB::~SVMDB() {
+SvmStlDB::~SvmStlDB() {
   std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
   for (auto &key_pair : key_pairs) {
     DeleteFieldHashtable(key_pair.second);
   }
-  SVMAlloc::Delete(key_table_);
+  SvmAlloc::Delete(key_table_);
 }
 
-int SVMDB::Read(const std::string &table, const std::string &key,
+int SvmStlDB::Read(const std::string &table, const std::string &key,
     const std::vector<std::string> *fields, std::vector<KVPair> &result) {
   int ret;
   TRANS_BEGIN {
@@ -59,7 +60,7 @@ int SVMDB::Read(const std::string &table, const std::string &key,
   return ret;
 }
 
-int SVMDB::Scan(const std::string &table, const std::string &key,
+int SvmStlDB::Scan(const std::string &table, const std::string &key,
     int len, const std::vector<std::string> *fields,
     std::vector<std::vector<KVPair>> &result) {
   int ret;
@@ -69,7 +70,7 @@ int SVMDB::Scan(const std::string &table, const std::string &key,
   return ret;
 }
 
-int SVMDB::Update(const std::string &table, const std::string &key,
+int SvmStlDB::Update(const std::string &table, const std::string &key,
     std::vector<KVPair> &values) {
   int ret;
   TRANS_BEGIN {
@@ -78,7 +79,7 @@ int SVMDB::Update(const std::string &table, const std::string &key,
   return ret;
 }
 
-int SVMDB::Insert(const std::string &table, const std::string &key,
+int SvmStlDB::Insert(const std::string &table, const std::string &key,
     std::vector<KVPair> &values) {
   int ret;
   TRANS_BEGIN {
@@ -87,7 +88,7 @@ int SVMDB::Insert(const std::string &table, const std::string &key,
   return ret;
 }
 
-int SVMDB::Delete(const std::string &table, const std::string &key) {
+int SvmStlDB::Delete(const std::string &table, const std::string &key) {
   int ret;
   TRANS_BEGIN {
     ret = HashtableDB::Delete(table, key);
@@ -95,26 +96,26 @@ int SVMDB::Delete(const std::string &table, const std::string &key) {
   return ret;
 }
 
-HashtableDB::FieldHashtable *SVMDB::NewFieldHashtable() {
-  return SVMAlloc::New<SVMHashtable<const char *>>();
+HashtableDB::FieldHashtable *SvmStlDB::NewFieldHashtable() {
+  return SvmAlloc::New<SvmHashtable<const char *>>();
 }
 
-void SVMDB::DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
+void SvmStlDB::DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
   std::vector<FieldHashtable::KVPair> pairs = table->Entries();
   for (auto &pair : pairs) {
     DeleteString(pair.second);
   }
-  SVMAlloc::Delete(table);
+  SvmAlloc::Delete(table);
 }
 
-const char *SVMDB::CopyString(const std::string &str) {
-  char *value = (char *)SVMAlloc::Malloc(str.length() + 1);
+const char *SvmStlDB::CopyString(const std::string &str) {
+  char *value = (char *)SvmAlloc::Malloc(str.length() + 1);
   strcpy(value, str.c_str());
   return value;
 }
 
-void SVMDB::DeleteString(const char *str) {
-  SVMAlloc::Free(str, strlen(str) + 1);
+void SvmStlDB::DeleteString(const char *str) {
+  SvmAlloc::Free(str, strlen(str) + 1);
 }
 
 } // ycsbc

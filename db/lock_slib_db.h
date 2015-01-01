@@ -17,12 +17,12 @@
 
 namespace ycsbc {
 
-class LockSLibDB : public HashtableDB {
+class LockSlibDB : public HashtableDB {
  public:
-  LockSLibDB() : HashtableDB(
-      new vmp::LockSLibHashtable<HashtableDB::FieldHashtable *>) { }
+  LockSlibDB() : HashtableDB(
+      new vmp::LockSlibHashtable<HashtableDB::FieldHashtable *>) { }
 
-  ~LockSLibDB() {
+  ~LockSlibDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
     for (auto &key_pair : key_pairs) {
       DeleteFieldHashtable(key_pair.second);
@@ -32,7 +32,7 @@ class LockSLibDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::LockSLibHashtable<const char *>;
+    return new vmp::LockSlibHashtable<const char *>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {

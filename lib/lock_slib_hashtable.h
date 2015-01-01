@@ -5,8 +5,8 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>
 //
 
-#ifndef VM_PERSISTENCE_LOCK_SLIB_HASHTABLE_H_
-#define VM_PERSISTENCE_LOCK_SLIB_HASHTABLE_H_
+#ifndef YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
+#define YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 
 #include "slib/mem_alloc.h"
 #include "lib/slib_hashtable.h"
@@ -17,7 +17,7 @@
 namespace vmp {
 
 template<class V>
-class LockSLibHashtable : public SLibHashtable<V, MemAlloc> {
+class LockSlibHashtable : public SlibHashtable<V, MemAlloc> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -33,43 +33,43 @@ class LockSLibHashtable : public SLibHashtable<V, MemAlloc> {
 };
 
 template<class V>
-inline V LockSLibHashtable<V>::Get(const char *key) const {
+inline V LockSlibHashtable<V>::Get(const char *key) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Get(key);
+  return SlibHashtable<V, MemAlloc>::Get(key);
 }
 
 template<class V>
-inline bool LockSLibHashtable<V>::Insert(const char *key, V value) {
+inline bool LockSlibHashtable<V>::Insert(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Insert(key, value);
+  return SlibHashtable<V, MemAlloc>::Insert(key, value);
 }
 
 template<class V>
-inline V LockSLibHashtable<V>::Update(const char *key, V value) {
+inline V LockSlibHashtable<V>::Update(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Update(key, value);
+  return SlibHashtable<V, MemAlloc>::Update(key, value);
 }
 
 template<class V>
-inline V LockSLibHashtable<V>::Remove(const char *key) {
+inline V LockSlibHashtable<V>::Remove(const char *key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Remove(key);
+  return SlibHashtable<V, MemAlloc>::Remove(key);
 }
 
 template<class V>
-inline std::size_t LockSLibHashtable<V>::Size() const {
+inline std::size_t LockSlibHashtable<V>::Size() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Size();
+  return SlibHashtable<V, MemAlloc>::Size();
 }
 
 template<class V>
-inline std::vector<typename LockSLibHashtable<V>::KVPair> LockSLibHashtable<V>::Entries(
-    const char *key, size_t n) const {
+inline std::vector<typename LockSlibHashtable<V>::KVPair>
+LockSlibHashtable<V>::Entries(const char *key, size_t n) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SLibHashtable<V, MemAlloc>::Entries(key, n);
+  return SlibHashtable<V, MemAlloc>::Entries(key, n);
 }
 
 } // vmp
 
-#endif // VM_PERSISTENCE_LOCK_SLIB_HASHTABLE_H_
+#endif // YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 
