@@ -31,3 +31,8 @@
 .project
 .cproject
 .settings/
+
+*.result
+*.log
+*.data
+*.output

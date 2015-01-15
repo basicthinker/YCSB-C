@@ -11,7 +11,7 @@
 #include "hashtable.h"
 
 #include "lib/string_hashtable.h"
-#include "slib/hashtable.h"
+#include "lib/hashtable.h"
 #include "lib/string.h"
 
 namespace vmp {
