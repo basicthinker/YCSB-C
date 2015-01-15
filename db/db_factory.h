@@ -10,7 +10,6 @@
 #define YCSB_C_DB_FACTORY_H_
 
 #include "core/db.h"
-#include "db/basic_db.h"
 
 namespace ycsbc {
 

@@ -3,11 +3,8 @@
 repeat_num=3
 db_names=(
   "lock_stl"
-  "lock_slib"
   "tbb_rand"
   "tbb_scan"
-  "svm_stl"
-  "svm_slib"
 )
 
 trap 'kill $(jobs -p)' SIGINT

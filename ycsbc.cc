@@ -52,7 +52,7 @@ int main(const int argc, const char *argv[]) {
   ycsbc::CoreWorkload wl;
   wl.Init(props);
 
-  const int num_threads = stoi(props["threadcount"]);
+  const int num_threads = stoi(props.GetProperty("threadcount", "1"));
 
   // Loads data
   vector<future<int>> actual_ops;

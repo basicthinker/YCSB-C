@@ -1,6 +1,6 @@
-CC=g++-4.9
+CC=g++
 CFLAGS=-std=c++11 -g -Wall -pthread -I./
-LDFLAGS= -L/home/jinglei/Projects/sitevm_dune-master/bin -L/home/jinglei/Projects/dune/libdune -lpthread -ltbb -lsitevm -ldune
+LDFLAGS= -lpthread -ltbb
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)
