@@ -18,16 +18,19 @@ namespace slib {
 
 template<typename T>
 struct HashEqual {
+  __attribute__((transaction_safe))
   virtual uint64_t hash(const T &key) const {
     std::hash<T> hasher;
     return hasher(key);
   }
   
+  __attribute__((transaction_safe))
   virtual bool equal(const T &x, const T &y) const {
     std::equal_to<T> equal;
     return equal(x, y);
   }
   
+  __attribute__((transaction_safe))
   virtual ~HashEqual() { }
 };
 
@@ -55,14 +58,21 @@ class hashtable {
   void set_local_load_factor(std::size_t f) { local_load_factor_ = f; }
   std::size_t bucket_count() const { return bucket_count_; }
   
-  bool find(const K &key, V &value) const;
-  bool update(const K &key, V &value);
-  bool insert(const K &key, const V &value);
+  bool find(const K &key, V &value) const __attribute__((transaction_safe));
+
+  bool update(const K &key, V &value) __attribute__((transaction_safe));
+
+  bool insert(const K &key, const V &value) __attribute__((transaction_safe));
+
+  //__attribute__((transaction_safe))
   bool erase(const K &key, std::pair<K, V> &erased);
+
   std::vector<std::pair<K, V>> entries(const K *key = NULL,
-                                       std::size_t n = -1) const;
-  std::size_t clear();
-  void rehash(std::size_t buckets);
+          std::size_t n = -1) const; // __attribute__((transaction_safe));
+
+  std::size_t clear() __attribute__((transaction_safe));
+
+  void rehash(std::size_t buckets) __attribute__((transaction_safe));
   
   std::size_t size() const;
   std::size_t bucket_size(size_t i) const { return buckets_[i].size; }
@@ -83,7 +93,7 @@ class hashtable {
 
 // Accessory functions
 
-template <class Alloc>
+template <class Alloc> __attribute__((transaction_safe))
 inline hlist_bucket *new_buckets(std::size_t n) {
   hlist_bucket *bkts = (hlist_bucket *)Alloc::Malloc(n * sizeof(hlist_bucket));
   for (std::size_t i = 0; i < n; ++i) {
@@ -102,6 +112,7 @@ inline std::size_t size_sum(const hlist_bucket *bkts, std::size_t n) {
 }
 
 template <typename K, typename V, class HashEqual, class Alloc>
+__attribute__((transaction_safe))
 hlist_pair<K, V> *find_in(const hlist_bucket *bkt, const K &key,
     const HashEqual &hash_equal = HashEqual()) {
   hlist_node *node;

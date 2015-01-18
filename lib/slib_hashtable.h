@@ -30,7 +30,9 @@ class SlibHashtable : public StringHashtable<V> {
 
  private:
   struct HashEqual {
+    __attribute__((transaction_safe))
     uint64_t hash(const String &hstr) const { return hstr.hash(); }
+    __attribute__((transaction_safe))
     bool equal(const String &a, const String &b) const { return a == b; }
   };
 

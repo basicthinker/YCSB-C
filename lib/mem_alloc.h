@@ -25,23 +25,24 @@ struct MemAlloc {
 };
 
 struct SvmAlloc {
+  __attribute__((transaction_pure))
   static void *Malloc(std::size_t size) { return sitevm_malloc::smalloc(size); }
 
   template <typename T>
-  static void Free(T *p, std::size_t size) {
+  static __attribute__((transaction_pure)) void Free(T *p, std::size_t size) {
     memset((void *)p, 255, size);
     sitevm_malloc::sfree((void *)p);
   }
 
   template <typename T, typename... Arguments>
-  static T *New(Arguments... args) {
+  static __attribute__((transaction_pure)) T *New(Arguments... args) {
     void *p = Malloc(sizeof(T));
     ::new(p) T(args...);
     return (T *)p;
   }
 
   template <typename T>
-  static void Delete(T *p) {
+  static __attribute__((transaction_pure)) void Delete(T *p) {
     p->~T();
     Free(p, sizeof(T));
   }

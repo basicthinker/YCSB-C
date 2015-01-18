@@ -5,10 +5,9 @@
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.
 //
 
-#ifndef YCSB_C_LIB_HASH_STRING_H_
-#define YCSB_C_LIB_HASH_STRING_H_
+#ifndef YCSB_C_SLIB_STRING_H_
+#define YCSB_C_SLIB_STRING_H_
 
-#include <cstdlib>
 #include <cstring>
 #include <cassert>
 #include <cstdint>
@@ -16,6 +15,18 @@
 #include "lib/mem_alloc.h"
 
 namespace vmp {
+
+__attribute__((transaction_safe))
+static int strncmp(const char *s1, const char *s2, size_t n) {
+  if (!n) return 0;
+
+  while (--n && *s1 && *s1 == *s2) {
+    ++s1;
+    ++s2;
+  }
+
+  return *(unsigned char *)s1 - *(unsigned char *)s2;
+}
 
 class String {
  public:
@@ -33,6 +44,7 @@ class String {
   template <class Alloc>
   static void Free(const String& str);
 
+  __attribute__((transaction_safe))
   bool operator==(const String &other) const;
 
  private:
@@ -82,11 +94,11 @@ inline void String::Free(const String& hstr) {
 }
 
 inline bool String::operator==(const String &other) const {
-  if (hash_ != other.hash()) return false;
-  return strcmp(value_, other.value()) == 0;
+  if (hash_ != other.hash() || len_ != other.length()) return false;
+  return strncmp(value_, other.value(), len_) == 0;
 }
 
-} // vmp
+} // slib
 
-#endif // YCSB_C_LIB_HASH_STRING_H_
+#endif // YCSB_C_SLIB_STRING_H_
 
