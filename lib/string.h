@@ -12,7 +12,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include "lib/mem_alloc.h"
+#include "slib/mem_alloc.h"
 
 namespace vmp {
 

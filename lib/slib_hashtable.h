@@ -8,11 +8,9 @@
 #ifndef YCSB_C_LIB_SLIB_HASHTABLE_H_
 #define YCSB_C_LIB_SLIB_HASHTABLE_H_
 
-#include "hashtable.h"
-
-#include "lib/string_hashtable.h"
-#include "lib/hashtable.h"
+#include "slib/hashtable.h"
 #include "lib/string.h"
+#include "lib/string_hashtable.h"
 
 namespace vmp {
 

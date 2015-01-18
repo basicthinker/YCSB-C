@@ -1,12 +1,13 @@
 //
-// list.h
-// vm-persistence
+//  list.h
+//  vm-persistence
 //
-// Jinglei Ren <jinglei@ren.systems>
+//  Created by Jinglei Ren on 11/30/14.
+//  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>
 //
 
-#ifndef _CPP_LINUX_LIST_H
-#define _CPP_LINUX_LIST_H
+#ifndef VM_PERSISTENCE_SLIB_LINUX_LIST_H_
+#define VM_PERSISTENCE_SLIB_LINUX_LIST_H_
 
 #include <assert.h>
 
@@ -535,5 +536,5 @@ pos = n)
 
 } // namespace slib
 
-#endif // _CPP_LINUX_LIST_H
+#endif // VM_PERSISTENCE_SLIB_LINUX_LIST_H_
 

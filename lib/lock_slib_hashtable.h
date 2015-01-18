@@ -8,7 +8,7 @@
 #ifndef YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 #define YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 
-#include "lib/mem_alloc.h"
+#include "slib/mem_alloc.h"
 #include "lib/slib_hashtable.h"
 
 #include <vector>

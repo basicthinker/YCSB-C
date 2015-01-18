@@ -10,7 +10,7 @@
 
 #include <vector>
 #include "sitevm/sitevm.h"
-#include "lib/mem_alloc.h"
+#include "slib/mem_alloc.h"
 #include "lib/slib_hashtable.h"
 #include "lib/trans_def.h"
 
