@@ -36,3 +36,4 @@
 *.log
 *.data
 *.output
+/Debug/

@@ -61,7 +61,7 @@ V SlibHashtable<V, Alloc>::Update(const char *key, V value) {
 
 template <typename V, class Alloc>
 V SlibHashtable<V, Alloc>::Remove(const char *key) {
-  std::pair<String, V> removed;
+  slib::pair<String, V> removed;
   if (!table_.erase(String::Wrap(key), removed)) return NULL;
   String::Free<Alloc>(removed.first);
   return removed.second;
@@ -71,7 +71,7 @@ template <typename V, class Alloc>
 std::vector<typename SlibHashtable<V, Alloc>::KVPair>
 SlibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
   String skey;
-  std::vector<std::pair<String, V>> entries = table_.entries(
+  slib::vector<slib::pair<String, V>> entries = table_.entries(
       (key ? skey = String::Wrap(key), &skey : NULL), n);
   std::vector<KVPair> results;
   for (auto entry : entries) {

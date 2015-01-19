@@ -11,7 +11,9 @@
 
 #include <cstdint>
 #include <cassert>
+#include "slib/pair.h"
 #include "slib/list.h"
+#include "slib/vector.h"
 #include "slib/mem_alloc.h"
 
 namespace slib {
@@ -53,7 +55,7 @@ struct hlist_pair {
   }
 
  private:
-  std::pair<K, V> pair;
+  slib::pair<K, V> pair;
 };
 
 template <typename K, typename V, class HashEqual, class Alloc>
@@ -71,9 +73,9 @@ class hashtable {
   bool insert(const K &key, const V &value) __attribute__((transaction_safe));
 
   //__attribute__((transaction_safe))
-  bool erase(const K &key, std::pair<K, V> &erased);
+  bool erase(const K &key, slib::pair<K, V> &erased);
 
-  std::vector<std::pair<K, V>> entries(const K *key = NULL,
+  slib::vector<slib::pair<K, V>> entries(const K *key = NULL,
           std::size_t n = -1) const; // __attribute__((transaction_safe));
 
   std::size_t clear() __attribute__((transaction_safe));
@@ -174,7 +176,7 @@ bool hashtable<K, V, HashEqual, Alloc>::find(const K &key, V &value) const {
   hlist_bucket *bkt = get_bucket(key);
   hlist_pair<K, V> *kv_pair = find_in<K, V, HashEqual, Alloc>(bkt, key);
   if (!kv_pair) return false;
-  kv_pair->set_value(value);
+  value = kv_pair->value();
   return true;
 }
 
@@ -205,7 +207,7 @@ bool hashtable<K, V, HashEqual, Alloc>::insert(const K &key, const V &value) {
 
 template <typename K, typename V, class HashEqual, class Alloc>
 bool hashtable<K, V, HashEqual, Alloc>::erase(
-    const K &key, std::pair<K, V> &erased) {
+    const K &key, slib::pair<K, V> &erased) {
   hlist_bucket *bkt = get_bucket(key);
   hlist_pair<K, V> *kv_pair = find_in<K, V, HashEqual, Alloc>(bkt, key);
   if (!kv_pair) return false;
@@ -216,9 +218,10 @@ bool hashtable<K, V, HashEqual, Alloc>::erase(
 }
 
 template <typename K, typename V, class HashEqual, class Alloc>
-std::vector<std::pair<K, V>> hashtable<K, V, HashEqual, Alloc>::entries(
+slib::vector<slib::pair<K, V>> hashtable<K, V, HashEqual, Alloc>::entries(
     const K *key, std::size_t num) const {
-  std::vector<std::pair<K, V>> pairs;
+  if (num > bucket_count_) num = bucket_count_;
+  slib::vector<slib::pair<K, V>> pairs(num);
   hlist_bucket *bkt = key ? get_bucket(*key) : buckets_;
   hlist_pair<K, V> *pos = key ? find_in<K, V, HashEqual, Alloc>(bkt, *key) :
       container_of(bkt->head.first, &hlist_pair<K, V>::node);
@@ -230,7 +233,7 @@ std::vector<std::pair<K, V>> hashtable<K, V, HashEqual, Alloc>::entries(
     if (!node) node = bkt->head.first;
     for (; node; node = node->next) {
       hlist_pair<K, V> *kv_pair = container_of(node, &hlist_pair<K, V>::node);
-      pairs.push_back(std::make_pair(kv_pair->key(), kv_pair->value()));
+      pairs.push_back(slib::make_pair(kv_pair->key(), kv_pair->value()));
       if (pairs.size() == num) return pairs;
     }
   }
