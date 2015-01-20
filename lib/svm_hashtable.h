@@ -1,5 +1,5 @@
 //
-//  svm_stl_hashtable.h
+//  svm_hashtable.h
 //
 //  Created by Jinglei Ren on 12/23/14.
 //  Copyright (c) 2014 Jinglei Ren <jinglei@ren.systems>.

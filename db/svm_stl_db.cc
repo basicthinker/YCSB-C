@@ -11,7 +11,7 @@
 #include <vector>
 #include "sitevm/sitevm.h"
 #include "slib/mem_alloc.h"
-#include "lib/svm_stl_hashtable.h"
+#include "lib/svm_hashtable.h"
 #include "lib/trans_def.h"
 
 using vmp::SvmHashtable;

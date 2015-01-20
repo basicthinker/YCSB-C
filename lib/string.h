@@ -13,6 +13,7 @@
 #include <cstdint>
 
 #include "slib/mem_alloc.h"
+#include "slib/string.h"
 
 namespace vmp {
 
@@ -36,15 +37,14 @@ class String {
   size_t length() const { return len_; }
   void set_value(const char *v);
 
-  template <class Alloc>
+  template <class Alloc> __attribute__((transaction_safe))
   static String Copy(const char *v);
 
-  static String Wrap(const char *v);
+  static String Wrap(const char *v) __attribute__((transaction_safe));
 
-  template <class Alloc>
+  template <class Alloc> __attribute__((transaction_safe))
   static void Free(const String& str);
 
-  __attribute__((transaction_safe))
   bool operator==(const String &other) const;
 
  private:
@@ -57,7 +57,7 @@ class String {
 
 inline void String::set_value(const char *v) {
   value_ = v;
-  len_ = strlen(value_);
+  len_ = slib::strlen(value_);
   hash_ = SDBMHash(value_);
 }
 
@@ -72,17 +72,17 @@ inline uint64_t String::SDBMHash(const char *cstr) {
 
 template <class Alloc>
 inline String String::Copy(const char *cstr) {
-  assert(cstr);
+  slib::Assert(cstr, "String::Copy null string");
   String hstr;
-  const size_t len = strlen(cstr); 
+  const size_t len = slib::strlen(cstr); 
   char *str = (char *)Alloc::Malloc(len + 1);
-  hstr.set_value(strcpy(str, cstr));
-  assert(hstr.length() == len);
+  hstr.set_value(slib::strcpy(str, cstr));
+  slib::Assert(hstr.length() == len, "String::Copy inconsistent length");
   return hstr;
 }
 
 inline String String::Wrap(const char *cstr) {
-  assert(cstr);
+  slib::Assert(cstr, "String::Wrap null string");
   String hstr;
   hstr.set_value(cstr);
   return hstr;

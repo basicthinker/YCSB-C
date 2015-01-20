@@ -27,8 +27,7 @@ class StlHashtable : public StringHashtable<V> {
   bool Insert(const char *key, V value);
   V Update(const char *key, V value);
   V Remove(const char *key);
-  std::vector<KVPair> Entries(const char *key = NULL,
-                              std::size_t n = -1) const;
+  std::vector<KVPair> Entries(const char *key = NULL, std::size_t n = -1) const;
   std::size_t Size() const { return table_.size(); }
 
  private:
