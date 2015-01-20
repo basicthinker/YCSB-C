@@ -26,7 +26,7 @@ class vector {
   void resize(std::size_t n);
 
   T &operator[](std::size_t n) { assert(n < size_); return array_[n]; }
-  void push_back(const T &val);
+  void push_back(const T &val) __attribute__((transaction_safe));
 
   T *begin() { return array_; }
   T *end() { return array_ + size_; }
@@ -34,7 +34,7 @@ class vector {
   ~vector();
 
  private:
-  void set_capacity(std::size_t n);
+  void set_capacity(std::size_t n) __attribute__((transaction_safe));
 
   unsigned int *counter_;
   T *array_;
@@ -44,7 +44,8 @@ class vector {
 
 template <class T, class Alloc>
 void vector<T, Alloc>::set_capacity(std::size_t n) {
-  counter_ = Alloc::Realloc(counter_, sizeof(int) + n * sizeof(T));
+  counter_ = Alloc::Realloc(counter_, sizeof(int) + capacity_ * sizeof(T),
+      sizeof(int) + n * sizeof(T));
   array_ = (T *)(counter_ + 1);
   capacity_ = n;
 }

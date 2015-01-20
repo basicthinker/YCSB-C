@@ -10,11 +10,11 @@
 #define VM_PERSISTENCE_SLIB_HASHTABLE_H_
 
 #include <cstdint>
-#include <cassert>
 #include "slib/pair.h"
 #include "slib/list.h"
 #include "slib/vector.h"
 #include "slib/mem_alloc.h"
+#include "slib/assert.h"
 
 namespace slib {
 
@@ -72,11 +72,11 @@ class hashtable {
 
   bool insert(const K &key, const V &value) __attribute__((transaction_safe));
 
-  //__attribute__((transaction_safe))
+  __attribute__((transaction_safe))
   bool erase(const K &key, slib::pair<K, V> &erased);
 
   slib::vector<slib::pair<K, V>> entries(const K *key = NULL,
-          std::size_t n = -1) const; // __attribute__((transaction_safe));
+          std::size_t n = -1) const  __attribute__((transaction_safe));
 
   std::size_t clear() __attribute__((transaction_safe));
 
@@ -140,11 +140,12 @@ void insert_to(hlist_bucket *bkt, hlist_pair<K, V> *kv_pair) {
 }
 
 template <typename K, typename V, class Alloc>
+__attribute__((transaction_safe))
 void erase_from(hlist_bucket *bkt, hlist_pair<K, V> *kv_pair) {
   hlist_del(&kv_pair->node);
   Alloc::Delete(kv_pair);
   --bkt->size;
-  assert((bool)bkt->size != hlist_empty(&bkt->head));
+  Assert((bool)bkt->size != hlist_empty(&bkt->head), "erase_from inconsistent");
 }
 
 template <typename K, typename V, class Alloc>
@@ -157,7 +158,7 @@ std::size_t clear_all(hlist_bucket *bkts, std::size_t n) {
       erase_from<K, V, Alloc>(bkts + i, kv_pair);
       ++num;
     }
-    assert(!bkts[i].size && hlist_empty(&bkts[i].head));
+    Assert(!bkts[i].size && hlist_empty(&bkts[i].head), "clear_all leaks");
   }
   return num;
 }

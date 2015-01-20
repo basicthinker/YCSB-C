@@ -16,8 +16,7 @@
 
 namespace vmp {
 
-template <class V, class MA = MemAlloc,
-    class PA = std::allocator<std::pair<String, V>>>
+template <class V, class MA, class PA = std::allocator<std::pair<String, V>>>
 class StlHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;

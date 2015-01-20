@@ -11,13 +11,32 @@
 
 #include <cstring>
 #include "sitevm/sitevm_malloc.h"
+#include "slib/assert.h"
+
+namespace slib {
+
+template <typename T>
+inline T *memcpy(T *dst, const T *src, std::size_t bytes) {
+  std::size_t t = bytes / sizeof(T);
+  Assert(bytes % sizeof(T) == 0,
+      "memcpy bytes not divided exactly by type size");
+  do {
+    *dst++ = *src++;
+  } while (--t);
+  return dst;
+}
 
 struct MemAlloc {
   static void *Malloc(std::size_t size) { return malloc(size); }
 
-  template <typename T>
-  static T *Realloc(T *ptr, std::size_t size) {
-    return (T *)realloc((void *)ptr, size);
+  template <typename T> __attribute__((transaction_safe))
+  static T *Realloc(T *old_pos, std::size_t old_size, std::size_t new_size) {
+    T *new_pos = (T *)Malloc(new_size);
+    if (old_pos) {
+      memcpy(new_pos, old_pos, old_size < new_size ? old_size : new_size);
+      Free(old_pos, old_size);
+    }
+    return new_pos;
   }
 
   template <typename T>
@@ -35,8 +54,8 @@ struct SvmAlloc {
   static void *Malloc(std::size_t size) { return sitevm_malloc::smalloc(size); }
 
   template <typename T> __attribute__((transaction_pure))
-  static T *Realloc(T *ptr, std::size_t size) {
-    return (T *)sitevm_malloc::srealloc((void *)ptr, size);
+  static T *Realloc(T *old_pos, std::size_t old_size, std::size_t new_size) {
+    return (T *)sitevm_malloc::srealloc((void *)old_pos, new_size);
   }
 
   template <typename T> __attribute__((transaction_pure))
@@ -58,6 +77,8 @@ struct SvmAlloc {
     Free(p, sizeof(T));
   }
 };
+
+} // namespace slib
 
 #endif // VM_PERSISTENCE_SLIB_MEM_ALLOC_H_
 

@@ -12,11 +12,12 @@
 
 #include <vector>
 #include <mutex>
+#include "slib/mem_alloc.h"
 
 namespace vmp {
 
 template<class V>
-class LockStlHashtable : public StlHashtable<V> {
+class LockStlHashtable : public StlHashtable<V, slib::MemAlloc> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -34,38 +35,38 @@ class LockStlHashtable : public StlHashtable<V> {
 template<class V>
 inline V LockStlHashtable<V>::Get(const char *key) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Get(key);
+  return StlHashtable<V, slib::MemAlloc>::Get(key);
 }
 
 template<class V>
 inline bool LockStlHashtable<V>::Insert(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Insert(key, value);
+  return StlHashtable<V, slib::MemAlloc>::Insert(key, value);
 }
 
 template<class V>
 inline V LockStlHashtable<V>::Update(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Update(key, value);
+  return StlHashtable<V, slib::MemAlloc>::Update(key, value);
 }
 
 template<class V>
 inline V LockStlHashtable<V>::Remove(const char *key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Remove(key);
+  return StlHashtable<V, slib::MemAlloc>::Remove(key);
 }
 
 template<class V>
 inline std::size_t LockStlHashtable<V>::Size() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Size();
+  return StlHashtable<V, slib::MemAlloc>::Size();
 }
 
 template<class V>
 inline std::vector<typename LockStlHashtable<V>::KVPair>
 LockStlHashtable<V>::Entries(const char *key, size_t n) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return StlHashtable<V>::Entries(key, n);
+  return StlHashtable<V, slib::MemAlloc>::Entries(key, n);
 }
 
 } // vmp

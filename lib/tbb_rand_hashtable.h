@@ -13,6 +13,7 @@
 #include <vector>
 #include "tbb/concurrent_hash_map.h"
 #include "tbb/queuing_rw_mutex.h"
+#include "slib/mem_alloc.h"
 #include "lib/string.h"
 
 namespace vmp {
@@ -52,7 +53,7 @@ V TbbRandHashtable<V>::Get(const char *key) const {
 template<class V>
 bool TbbRandHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
-  String skey = String::Copy<MemAlloc>(key);
+  String skey = String::Copy<slib::MemAlloc>(key);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   return table_.insert(std::make_pair(skey, value));
 }
@@ -75,7 +76,7 @@ V TbbRandHashtable<V>::Remove(const char *key) {
   V old(NULL);
   tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (table_.find(result, String::Wrap(key))) {
-    String::Free<MemAlloc>(result->first);
+    String::Free<slib::MemAlloc>(result->first);
     old = result->second;
     table_.erase(result);
   }

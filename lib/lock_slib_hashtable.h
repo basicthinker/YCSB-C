@@ -8,16 +8,16 @@
 #ifndef YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 #define YCSB_C_LIB_LOCK_SLIB_HASHTABLE_H_
 
-#include "slib/mem_alloc.h"
 #include "lib/slib_hashtable.h"
 
 #include <vector>
 #include <mutex>
+#include "slib/mem_alloc.h"
 
 namespace vmp {
 
 template<class V>
-class LockSlibHashtable : public SlibHashtable<V, MemAlloc> {
+class LockSlibHashtable : public SlibHashtable<V, slib::MemAlloc> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
 
@@ -35,38 +35,38 @@ class LockSlibHashtable : public SlibHashtable<V, MemAlloc> {
 template<class V>
 inline V LockSlibHashtable<V>::Get(const char *key) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Get(key);
+  return SlibHashtable<V, slib::MemAlloc>::Get(key);
 }
 
 template<class V>
 inline bool LockSlibHashtable<V>::Insert(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Insert(key, value);
+  return SlibHashtable<V, slib::MemAlloc>::Insert(key, value);
 }
 
 template<class V>
 inline V LockSlibHashtable<V>::Update(const char *key, V value) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Update(key, value);
+  return SlibHashtable<V, slib::MemAlloc>::Update(key, value);
 }
 
 template<class V>
 inline V LockSlibHashtable<V>::Remove(const char *key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Remove(key);
+  return SlibHashtable<V, slib::MemAlloc>::Remove(key);
 }
 
 template<class V>
 inline std::size_t LockSlibHashtable<V>::Size() const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Size();
+  return SlibHashtable<V, slib::MemAlloc>::Size();
 }
 
 template<class V>
 inline std::vector<typename LockSlibHashtable<V>::KVPair>
 LockSlibHashtable<V>::Entries(const char *key, size_t n) const {
   std::lock_guard<std::mutex> lock(mutex_);
-  return SlibHashtable<V, MemAlloc>::Entries(key, n);
+  return SlibHashtable<V, slib::MemAlloc>::Entries(key, n);
 }
 
 } // vmp

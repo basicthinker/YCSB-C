@@ -15,6 +15,7 @@
 #include "lib/trans_def.h"
 
 using vmp::SvmHashtable;
+using slib::SvmAlloc;
 
 namespace ycsbc {
 
