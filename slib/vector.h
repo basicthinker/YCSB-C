@@ -36,7 +36,7 @@ class vector {
  private:
   void set_capacity(std::size_t n) __attribute__((transaction_safe));
 
-  unsigned int *counter_;
+  int *counter_;
   T *array_;
   std::size_t capacity_;
   std::size_t size_;
@@ -44,17 +44,14 @@ class vector {
 
 template <class T, class Alloc>
 void vector<T, Alloc>::set_capacity(std::size_t n) {
-  counter_ = Alloc::Realloc(counter_, sizeof(int) + capacity_ * sizeof(T),
-      sizeof(int) + n * sizeof(T));
-  array_ = (T *)(counter_ + 1);
+  array_ = Alloc::Realloc(array_, capacity_ * sizeof(T), n * sizeof(T));
   capacity_ = n;
 }
 
 template <class T, class Alloc>
-vector<T, Alloc>::vector(std::size_t n) : size_(0) {
-  counter_ = nullptr;
+vector<T, Alloc>::vector(std::size_t n) : array_(nullptr), size_(0) {
+  counter_ = Alloc::template New<int>(1);
   set_capacity(n);
-  *counter_ = 1;
 }
 
 template <class T, class Alloc>
@@ -88,10 +85,11 @@ template <class T, class Alloc>
 vector<T, Alloc>::~vector() {
   *counter_ -= 1;
   if (*counter_) return;
+  Alloc::Delete(counter_);
   for (T *p = array_; p < array_ + size_; ++p) {
     p->~T();
   }
-  Alloc::Free(counter_, sizeof(int) + capacity_ * sizeof(T));
+  Alloc::Free(array_, capacity_ * sizeof(T));
 }
 
 } // namespace slib
