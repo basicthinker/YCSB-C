@@ -7,8 +7,6 @@ StringHashtable --> String
       |--- StlHashtable --> std::unordered_map
       |        |
       |        |--- LockStlHashtable --> std::mutex
-      |        |
-      |    SvmHashtable --> SvmAllocator
       |
       |--- SlibHashtable --> slib::hashtable
       |        |

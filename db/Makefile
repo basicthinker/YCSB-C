@@ -1,5 +1,5 @@
 CC=g++-4.9
-CFLAGS=-std=c++11 -c -g -Wall -fgnu-tm
+CFLAGS=-std=gnu++11 -c -g -Wall -fgnu-tm
 INCLUDES=-I../ -I/home/jinglei/Projects/sitevm_dune-master
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(SOURCES:.cc=.o)

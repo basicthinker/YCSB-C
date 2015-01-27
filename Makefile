@@ -1,8 +1,7 @@
 CC=g++-4.9
-CFLAGS=-std=c++11 -g -Wall -pthread -I./
-LDFLAGS=-L/home/jinglei/Projects/sitevm_dune-master/bin \
-	-L/home/jinglei/Projects/dune/libdune \
-	-lpthread -ltbb -lsitevm -ldune -litm
+CFLAGS=-std=gnu++11 -g -Wall -pthread -I./
+LDFLAGS=-L/home/jinglei/Projects/sitevm_dune-undo/bin \
+	-lpthread -ltbb -litm -lsitevm -ldune
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)
@@ -14,7 +13,7 @@ $(SUBDIRS):
 	$(MAKE) -C $@
 
 $(EXEC): $(wildcard *.cc) $(OBJECTS)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $^ /home/basicthinker/Projects/gcc/x86_64-unknown-linux-gnu/libitm/libitm.a $(LDFLAGS) -o $@
 
 clean:
 	for dir in $(SUBDIRS); do \
