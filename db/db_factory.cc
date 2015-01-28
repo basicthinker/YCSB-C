@@ -8,6 +8,7 @@
 
 #include "db/db_factory.h"
 
+#include <cstdlib>
 #include "db/lock_stl_db.h"
 #include "db/lock_slib_db.h"
 #include "db/tbb_rand_db.h"
@@ -29,7 +30,11 @@ DB* DBFactory::CreateDB(const std::string name) {
   } else if (name == "tbb_scan") {
     return new TbbScanDB;
   } else if (name == "itm_slib") {
-    return new ItmSlibDB;
+    char *method = std::getenv("ITM_DEFAULT_METHOD");
+    if (method && strncmp(method, "svm", 3) == 0) {
+      return new ItmSlibDB<slib::SvmAlloc>;
+    }
+    return new ItmSlibDB<slib::MemAlloc>;
   } else return NULL;
 }
 

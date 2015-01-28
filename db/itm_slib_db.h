@@ -17,10 +17,11 @@
 
 namespace ycsbc {
 
+template <class Alloc>
 class ItmSlibDB : public HashtableDB {
  public:
   ItmSlibDB() : HashtableDB(
-      new vmp::ItmSlibHashtable<HashtableDB::FieldHashtable *>) { }
+      new vmp::ItmSlibHashtable<HashtableDB::FieldHashtable *, Alloc>) { }
 
   ~ItmSlibDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
@@ -32,7 +33,7 @@ class ItmSlibDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::ItmSlibHashtable<const char *>;
+    return new vmp::ItmSlibHashtable<const char *, Alloc>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {

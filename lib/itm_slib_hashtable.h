@@ -16,7 +16,7 @@
 
 namespace vmp {
 
-template<class V>
+template<class V, class Alloc>
 class ItmSlibHashtable : public StringHashtable<V> {
  public:
   typedef typename StringHashtable<V>::KVPair KVPair;
@@ -38,12 +38,12 @@ class ItmSlibHashtable : public StringHashtable<V> {
   };
 
   typedef typename
-      slib::hashtable<String, V, HashEqual, slib::MemAlloc> Hashtable;
+      slib::hashtable<String, V, HashEqual, Alloc> Hashtable;
   Hashtable table_;
 };
 
-template<class V>
-inline V ItmSlibHashtable<V>::Get(const char *key) const {
+template<class V, class Alloc>
+inline V ItmSlibHashtable<V, Alloc>::Get(const char *key) const {
   String skey = String::Wrap(key);
   __transaction_atomic {
     V value;
@@ -52,17 +52,17 @@ inline V ItmSlibHashtable<V>::Get(const char *key) const {
   }
 }
 
-template<class V>
-inline bool ItmSlibHashtable<V>::Insert(const char *key, V value) {
+template<class V, class Alloc>
+inline bool ItmSlibHashtable<V, Alloc>::Insert(const char *key, V value) {
   if (!key) return false;
   __transaction_atomic {
-    String skey = String::Copy<slib::MemAlloc>(key);
+    String skey = String::Copy<Alloc>(key);
     return table_.insert(skey, value);
   }
 }
 
-template<class V>
-inline V ItmSlibHashtable<V>::Update(const char *key, V value) {
+template<class V, class Alloc>
+inline V ItmSlibHashtable<V, Alloc>::Update(const char *key, V value) {
   String skey = String::Wrap(key);
   __transaction_atomic {
     if (!table_.update(skey, value)) return nullptr;
@@ -70,27 +70,27 @@ inline V ItmSlibHashtable<V>::Update(const char *key, V value) {
   }
 }
 
-template<class V>
-inline V ItmSlibHashtable<V>::Remove(const char *key) {
+template<class V, class Alloc>
+inline V ItmSlibHashtable<V, Alloc>::Remove(const char *key) {
   String skey = String::Wrap(key);
   __transaction_atomic {
     slib::pair<String, V> removed;
     if (!table_.erase(skey, removed)) return nullptr;
-    String::Free<slib::MemAlloc>(removed.first);
+    String::Free<Alloc>(removed.first);
     return removed.second;
   }
 }
 
-template<class V>
-inline std::size_t ItmSlibHashtable<V>::Size() const {
+template<class V, class Alloc>
+inline std::size_t ItmSlibHashtable<V, Alloc>::Size() const {
   __transaction_atomic {
     return table_.size();
   }
 }
 
-template<class V>
-inline std::vector<typename ItmSlibHashtable<V>::KVPair>
-ItmSlibHashtable<V>::Entries(const char *key, size_t n) const {
+template<class V, class Alloc>
+std::vector<typename ItmSlibHashtable<V, Alloc>::KVPair>
+ItmSlibHashtable<V, Alloc>::Entries(const char *key, size_t n) const {
   String skey;
   slib::vector<slib::pair<String, V>> entries;
   __transaction_atomic {
