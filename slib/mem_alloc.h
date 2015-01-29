@@ -50,31 +50,55 @@ struct MemAlloc {
 };
 
 struct SvmAlloc {
-  __attribute__((transaction_pure))
-  static void *Malloc(std::size_t size) { return sitevm_malloc::smalloc(size); }
+  static void *Malloc(std::size_t size) {
+    __transaction_atomic {
+      return smalloc(size);
+    }
+  }
 
-  template <typename T> __attribute__((transaction_pure))
+  template <typename T>
   static T *Realloc(T *old_pos, std::size_t old_size, std::size_t new_size) {
-    return (T *)sitevm_malloc::srealloc((void *)old_pos, new_size);
+    __transaction_atomic {
+      return (T *)srealloc((void *)old_pos, new_size);
+    }
   }
 
   template <typename T> __attribute__((transaction_pure))
   static void Free(T *p, std::size_t size) {
+    //TODO transactionalize memset
     memset((void *)p, 255, size);
     sitevm_malloc::sfree((void *)p);
   }
 
-  template <typename T, typename... Arguments> __attribute__((transaction_pure))
+  template <typename T, typename... Arguments>
   static T *New(Arguments... args) {
-    void *p = Malloc(sizeof(T));
-    ::new(p) T(args...);
-    return (T *)p;
+    __transaction_atomic {
+      void *p = smalloc(sizeof(T));
+      ::new(p) T(args...);
+      return (T *)p;
+    }
   }
 
   template <typename T> __attribute__((transaction_pure))
   static void Delete(T *p) {
     p->~T();
     Free(p, sizeof(T));
+  }
+
+private:
+  __attribute__((transaction_pure))
+  static void* smalloc(size_t size) {
+    return sitevm_malloc::smalloc(size);
+  }
+
+  __attribute__((transaction_pure))
+  static void* scalloc(size_t no, size_t size) {
+    return sitevm_malloc::scalloc(no, size);
+  }
+
+  __attribute__((transaction_pure))
+  static void* srealloc(void* mem, size_t size) {
+    return sitevm_malloc::srealloc(mem, size);
   }
 };
 

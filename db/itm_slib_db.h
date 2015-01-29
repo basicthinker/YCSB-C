@@ -20,20 +20,20 @@ namespace ycsbc {
 template <class Alloc>
 class ItmSlibDB : public HashtableDB {
  public:
-  ItmSlibDB() : HashtableDB(
-      new vmp::ItmSlibHashtable<HashtableDB::FieldHashtable *, Alloc>) { }
+  ItmSlibDB() : HashtableDB(Alloc::template New<vmp::ItmSlibHashtable<
+      HashtableDB::FieldHashtable *, Alloc>>()) { }
 
   ~ItmSlibDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
     for (auto &key_pair : key_pairs) {
       DeleteFieldHashtable(key_pair.second);
     }
-    delete key_table_;
+    Alloc::Delete(key_table_);
   }
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::ItmSlibHashtable<const char *, Alloc>;
+    return Alloc::template New<vmp::ItmSlibHashtable<const char *, Alloc>>();
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
@@ -41,17 +41,17 @@ class ItmSlibDB : public HashtableDB {
     for (auto &pair : pairs) {
       DeleteString(pair.second);
     }
-    delete table;
+    Alloc::Delete((vmp::ItmSlibHashtable<const char *, Alloc> *)table);
   }
 
   const char *CopyString(const std::string &str) {
-    char *value = new char[str.length() + 1];
+    char *value = (char *)Alloc::Malloc(str.length() + 1);
     strcpy(value, str.c_str());
     return value;
   }
 
   void DeleteString(const char *str) {
-    delete[] str;
+    Alloc::Free(str, strlen(str) + 1);
   }
 };
 
