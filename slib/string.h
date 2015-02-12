@@ -15,7 +15,7 @@ __attribute__((transaction_safe))
 static std::size_t strlen(const char *str) {
   register const char *s;
   for (s = str; *s; ++s);
-  return(s - str);
+  return (s - str);
 }
 
 } // namespace slib

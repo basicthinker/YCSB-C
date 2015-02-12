@@ -74,9 +74,10 @@ template <class Alloc>
 inline String String::Copy(const char *cstr) {
   slib::Assert(cstr, "String::Copy null string");
   String hstr;
-  const size_t len = slib::strlen(cstr); 
+  const size_t len = slib::strlen(cstr);
   char *str = (char *)Alloc::Malloc(len + 1);
-  hstr.set_value((const char *)memcpy(str, cstr, len + 1));
+  memcpy((void*)str, (void*)cstr, len + 1);
+  hstr.set_value(str);
   slib::Assert(hstr.length() == len, "String::Copy inconsistent length");
   return hstr;
 }

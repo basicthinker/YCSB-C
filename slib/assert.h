@@ -9,7 +9,8 @@
 #ifndef VM_PERSISTENCE_SLIB_ASSERT_H_
 #define VM_PERSISTENCE_SLIB_ASSERT_H_
 
-#include <iostream>
+#include <cstdarg>
+#include <cstdio>
 
 namespace slib {
 
@@ -18,9 +19,13 @@ namespace slib {
 #endif
 
 __attribute__((transaction_pure))
-inline void Assert(bool expression, const char *hint = "(no info)") {
+inline void Assert(bool expression, const char *fmt, ...) {
   if (likely(expression)) return;
-  std::cerr << "Assertion failed: " << hint << std::endl;
+
+  va_list list;
+  va_start(list, fmt);
+  vfprintf (stderr, fmt, list);
+  va_end(list);
 }
 
 } // namespace slib
