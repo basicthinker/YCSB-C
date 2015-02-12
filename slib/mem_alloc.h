@@ -10,21 +10,10 @@
 #define VM_PERSISTENCE_SLIB_MEM_ALLOC_H_
 
 #include <cstring>
-#include "sitevm/sitevm_malloc.h"
+#include "sitevm/sitevm.h"
 #include "slib/assert.h"
 
 namespace slib {
-
-template <typename T>
-inline T *memcpy(T *dst, const T *src, std::size_t bytes) {
-  std::size_t t = bytes / sizeof(T);
-  Assert(bytes % sizeof(T) == 0,
-      "memcpy bytes not divided exactly by type size");
-  do {
-    *dst++ = *src++;
-  } while (--t);
-  return dst;
-}
 
 struct MemAlloc {
   static void *Malloc(std::size_t size) { return malloc(size); }
@@ -47,6 +36,9 @@ struct MemAlloc {
 
   template <typename T>
   static void Delete(T *p) { return delete p; }
+
+  static void ThreadInit() { }
+  static void ThreadExit() { }
 };
 
 struct SvmAlloc {
@@ -65,9 +57,10 @@ struct SvmAlloc {
 
   template <typename T> __attribute__((transaction_pure))
   static void Free(T *p, std::size_t size) {
-    //TODO transactionalize memset
-    memset((void *)p, 255, size);
-    sitevm_malloc::sfree((void *)p);
+    __transaction_atomic {
+      memset((void *)p, 255, size);
+      sfree((void *)p);
+    }
   }
 
   template <typename T, typename... Arguments>
@@ -85,20 +78,37 @@ struct SvmAlloc {
     Free(p, sizeof(T));
   }
 
+  __attribute__((transaction_pure))
+  static void ThreadInit() {
+    int err = sitevm::sitevm_enter();
+    assert(!err);
+  }
+
+  __attribute__((transaction_pure))
+  static void ThreadExit() {
+    int err = sitevm::sitevm_exit();
+    assert(!err);
+  }
+
 private:
   __attribute__((transaction_pure))
   static void* smalloc(size_t size) {
-    return sitevm_malloc::smalloc(size);
+    return sitevm::smalloc(size);
   }
 
   __attribute__((transaction_pure))
   static void* scalloc(size_t no, size_t size) {
-    return sitevm_malloc::scalloc(no, size);
+    return sitevm::scalloc(no, size);
   }
 
   __attribute__((transaction_pure))
   static void* srealloc(void* mem, size_t size) {
-    return sitevm_malloc::srealloc(mem, size);
+    return sitevm::srealloc(mem, size);
+  }
+
+  __attribute__((transaction_pure))
+  static void sfree(void *p) {
+      sitevm::sfree((void *)p);
   }
 };
 

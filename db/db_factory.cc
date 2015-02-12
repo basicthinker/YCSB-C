@@ -33,8 +33,9 @@ DB* DBFactory::CreateDB(const std::string name) {
     char *method = std::getenv("ITM_DEFAULT_METHOD");
     if (method && strncmp(method, "svm", 3) == 0) {
       return new ItmSlibDB<slib::SvmAlloc>;
+    } else {
+      return new ItmSlibDB<slib::MemAlloc>;
     }
-    return new ItmSlibDB<slib::MemAlloc>;
   } else return NULL;
 }
 

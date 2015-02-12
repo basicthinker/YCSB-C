@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include "sitevm/sitevm.h"
 #include "lib/itm_slib_hashtable.h"
 
 namespace ycsbc {
@@ -31,6 +32,13 @@ class ItmSlibDB : public HashtableDB {
     Alloc::Delete(key_table_);
   }
 
+  void Open() {
+    Alloc::ThreadInit();
+  }
+
+  void Close() {
+    Alloc::ThreadExit();
+  }
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
     return Alloc::template New<vmp::ItmSlibHashtable<const char *, Alloc>>();
@@ -45,9 +53,9 @@ class ItmSlibDB : public HashtableDB {
   }
 
   const char *CopyString(const std::string &str) {
-    char *value = (char *)Alloc::Malloc(str.length() + 1);
-    strcpy(value, str.c_str());
-    return value;
+    void *value = Alloc::Malloc(str.length() + 1);
+    memcpy(value, (const void *)str.c_str(), str.length() + 1);
+    return (char *)value;
   }
 
   void DeleteString(const char *str) {

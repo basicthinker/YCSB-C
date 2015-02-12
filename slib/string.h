@@ -18,13 +18,6 @@ static std::size_t strlen(const char *str) {
   return(s - str);
 }
 
-__attribute__((transaction_safe))
-static char *strcpy(char *dst, const char *src) {
-  char *s = dst;
-  while ((*s++ = *src++) != 0);
-  return dst;
-}
-
 } // namespace slib
 
 #endif // VM_PERSISTENCE_SLIB_PAIR_H_

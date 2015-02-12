@@ -45,8 +45,8 @@ class ItmSlibHashtable : public StringHashtable<V> {
 template<class V, class Alloc>
 inline V ItmSlibHashtable<V, Alloc>::Get(const char *key) const {
   String skey = String::Wrap(key);
+  V value;
   __transaction_atomic {
-    V value;
     if (!table_.find(skey, value)) value = nullptr;
     return value;
   }
@@ -73,8 +73,8 @@ inline V ItmSlibHashtable<V, Alloc>::Update(const char *key, V value) {
 template<class V, class Alloc>
 inline V ItmSlibHashtable<V, Alloc>::Remove(const char *key) {
   String skey = String::Wrap(key);
+  slib::pair<String, V> removed;
   __transaction_atomic {
-    slib::pair<String, V> removed;
     if (!table_.erase(skey, removed)) return nullptr;
     String::Free<Alloc>(removed.first);
     return removed.second;

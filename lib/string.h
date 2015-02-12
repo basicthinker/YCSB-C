@@ -76,7 +76,7 @@ inline String String::Copy(const char *cstr) {
   String hstr;
   const size_t len = slib::strlen(cstr); 
   char *str = (char *)Alloc::Malloc(len + 1);
-  hstr.set_value(slib::strcpy(str, cstr));
+  hstr.set_value((const char *)memcpy(str, cstr, len + 1));
   slib::Assert(hstr.length() == len, "String::Copy inconsistent length");
   return hstr;
 }

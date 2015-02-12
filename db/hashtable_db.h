@@ -36,6 +36,7 @@ class HashtableDB : public DB {
 
  protected:
   HashtableDB(KeyHashtable *table) : key_table_(table) { }
+  virtual ~HashtableDB() { }
 
   virtual FieldHashtable *NewFieldHashtable() = 0;
   virtual void DeleteFieldHashtable(FieldHashtable *table) = 0;

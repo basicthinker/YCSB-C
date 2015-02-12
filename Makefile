@@ -1,6 +1,6 @@
 CC=g++-4.9
 CFLAGS=-std=gnu++11 -g -Wall -pthread -I./
-LDFLAGS=-L/home/jinglei/Projects/sitevm_dune-undo/bin \
+LDFLAGS=-rdynamic -L/home/jinglei/Projects/sitevm_dune-undo/bin \
 	-lpthread -ltbb -litm -lsitevm -ldune
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
