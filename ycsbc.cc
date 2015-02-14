@@ -87,9 +87,12 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   double duration = timer.End();
+
   cerr << "# Transaction throughput (KTPS)" << endl;
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
   cerr << total_ops / duration / 1000 << endl;
+
+  delete db;
 }
 
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {
