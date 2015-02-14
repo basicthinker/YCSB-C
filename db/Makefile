@@ -1,7 +1,6 @@
-CC=g++-4.9
+CC=g++
 CFLAGS=-std=gnu++11 -c -g -Wall -fgnu-tm
-INCLUDES=-I../ -I/home/jinglei/Projects/sitevm_dune-undo \
-	-I/home/jinglei/Projects/dune
+INCLUDES=-I../ -I$(SITEVM_HOME) -I$(DUNE_HOME)
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(SOURCES:.cc=.o)
 
