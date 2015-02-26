@@ -1,14 +1,10 @@
-DUNE_HOME=/home/jinglei/Projects/dune
-SITEVM_HOME=/home/jinglei/Projects/sitevm_dune
-LIBITM_HOME=/home/jinglei/Projects/gcc/x86_64-unknown-linux-gnu/libitm
-
 export SITEVM_HOME
-export DUNE_HOME
+export LIBITM_HOME
 
 CC=g++
 CFLAGS=-std=gnu++11 -g -Wall -pthread -I./
 LDFLAGS=-rdynamic -L$(SITEVM_HOME)/bin \
-	-lpthread -ltbb -litm -lsitevm -ldune
+	-lpthread -ltbb -lsitevm -ldune
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)

@@ -85,10 +85,7 @@ struct SvmAlloc {
   }
 
   __attribute__((transaction_pure))
-  static void ThreadExit() {
-    int err = sitevm::sitevm_exit();
-    assert(!err);
-  }
+  static void ThreadExit() { }
 
 private:
   __attribute__((transaction_pure))
