@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <future>
+#include "slib/resident_thread.h"
 #include "core/utils.h"
 #include "core/timer.h"
 #include "core/client.h"
@@ -53,12 +54,13 @@ int main(const int argc, const char *argv[]) {
   wl.Init(props);
 
   const int num_threads = stoi(props["threadcount"]);
+  slib::ResidentThread threads[num_threads];
 
   // Loads data
   vector<future<int>> actual_ops;
   int total_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
   for (int i = 0; i < num_threads; ++i) {
-    actual_ops.emplace_back(async(launch::async,
+    actual_ops.emplace_back(threads[i].Run(
         DelegateClient, db, &wl, total_ops / num_threads, true));
   }
   assert((int)actual_ops.size() == num_threads);
@@ -76,7 +78,7 @@ int main(const int argc, const char *argv[]) {
   utils::Timer<double> timer;
   timer.Start();
   for (int i = 0; i < num_threads; ++i) {
-    actual_ops.emplace_back(async(launch::async,
+    actual_ops.emplace_back(threads[i].Run(
         DelegateClient, db, &wl, total_ops / num_threads, false));
   }
   assert((int)actual_ops.size() == num_threads);

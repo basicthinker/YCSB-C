@@ -55,7 +55,7 @@ struct SvmAlloc {
     }
   }
 
-  template <typename T> __attribute__((transaction_pure))
+  template <typename T>
   static void Free(T *p, std::size_t size) {
     __transaction_atomic {
       memset((void *)p, 255, size);
