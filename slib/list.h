@@ -11,15 +11,18 @@
 
 #include <assert.h>
 
+namespace slib {
+
 /*
  * Architectures might want to move the poison pointer offset
  * into some well-recognized area such as 0xdead000000000000,
  * that is also not mappable by user-space exploits:
  */
 #ifdef CONFIG_ILLEGAL_POINTER_VALUE
-# define POISON_POINTER_DELTA _AC(CONFIG_ILLEGAL_POINTER_VALUE, UL)
+static const unsigned long POISON_POINTER_DELTA =
+    _AC(CONFIG_ILLEGAL_POINTER_VALUE, UL);
 #else
-# define POISON_POINTER_DELTA 0
+static const unsigned long POISON_POINTER_DELTA = 0;
 #endif
 
 /*
@@ -27,10 +30,9 @@
  * under normal circumstances, used to verify that nobody uses
  * non-initialized list entries.
  */
-#define LIST_POISON1  ((void *)(0x00100100 + POISON_POINTER_DELTA))
-#define LIST_POISON2  ((void *)(0x00200200 + POISON_POINTER_DELTA))
+const void* LIST_POISON1 = (void *)(0x00100100 + POISON_POINTER_DELTA);
+const void* LIST_POISON2 = (void *)(0x00200200 + POISON_POINTER_DELTA);
 
-namespace slib {
 
 struct list_head {
   struct list_head *next, *prev;
@@ -65,8 +67,6 @@ P* container_of(M* ptr, const M P::*member)
  * generate better code by using them directly rather than
  * using the generic single-entry routines.
  */
-
-#define LIST_HEAD_INIT(name) { &(name), &(name) }
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
 {
@@ -389,6 +389,9 @@ static inline void list_splice_tail_init(struct list_head *list,
  * @pos:	the &struct list_head to use as a loop cursor.
  * @head:	the head for your list.
  */
+#ifdef list_for_each
+#undef list_for_each
+#endif
 #define list_for_each(pos, head) \
 for (pos = (head)->next; pos != (head); pos = pos->next)
 
@@ -397,6 +400,9 @@ for (pos = (head)->next; pos != (head); pos = pos->next)
  * @pos:	the &struct list_head to use as a loop cursor.
  * @head:	the head for your list.
  */
+#ifdef list_for_each_prev
+#undef list_for_each_prev
+#endif
 #define list_for_each_prev(pos, head) \
 for (pos = (head)->prev; pos != (head); pos = pos->prev)
 
@@ -406,6 +412,9 @@ for (pos = (head)->prev; pos != (head); pos = pos->prev)
  * @n:		another &struct list_head to use as temporary storage
  * @head:	the head for your list.
  */
+#ifdef list_for_each_safe
+#undef list_for_each_safe
+#endif
 #define list_for_each_safe(pos, n, head) \
 for (pos = (head)->next, n = pos->next; pos != (head); \
 pos = n, n = pos->next)
@@ -416,6 +425,9 @@ pos = n, n = pos->next)
  * @n:		another &struct list_head to use as temporary storage
  * @head:	the head for your list.
  */
+#ifdef list_for_each_prev_safe
+#undef list_for_each_prev_safe
+#endif
 #define list_for_each_prev_safe(pos, n, head) \
 for (pos = (head)->prev, n = pos->prev; \
 pos != (head); \
@@ -428,9 +440,11 @@ pos = n, n = pos->prev)
  * You lose the ability to access the tail in O(1).
  */
 
-#define HLIST_HEAD_INIT { .first = NULL }
-#define HLIST_HEAD(name) struct hlist_head name = {  .first = NULL }
-#define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL)
+static inline void INIT_HLIST_HEAD(struct hlist_head *h)
+{
+  h->first = NULL;
+}
+
 static inline void INIT_HLIST_NODE(struct hlist_node *h)
 {
   h->next = NULL;
@@ -524,9 +538,15 @@ static inline void hlist_move_list(struct hlist_head *old,
   old->first = NULL;
 }
 
+#ifdef hlist_for_each
+#undef hlist_for_each
+#endif
 #define hlist_for_each(pos, head) \
 for (pos = (head)->first; pos ; pos = pos->next)
 
+#ifdef hlist_for_each_safe
+#undef hlist_for_each_safe
+#endif
 #define hlist_for_each_safe(pos, n, head) \
 for (pos = (head)->first; pos && ({ n = pos->next; 1; }); \
 pos = n)
