@@ -44,14 +44,7 @@ struct MemAlloc {
 struct SvmAlloc {
   static void *Malloc(std::size_t size) {
     __transaction_atomic {
-      return smalloc(size);
-    }
-  }
-
-  template <typename T>
-  static T *Realloc(T *old_pos, std::size_t old_size, std::size_t new_size) {
-    __transaction_atomic {
-      return (T *)srealloc((void *)old_pos, new_size);
+      return sitevm::smalloc(size);
     }
   }
 
@@ -59,14 +52,14 @@ struct SvmAlloc {
   static void Free(T *p, std::size_t size) {
     __transaction_atomic {
       memset((void *)p, 255, size);
-      sfree((void *)p);
+      sitevm::sfree((void *)p);
     }
   }
 
   template <typename T, typename... Arguments>
   static T *New(Arguments... args) {
     __transaction_atomic {
-      void *p = smalloc(sizeof(T));
+      void *p = sitevm::smalloc(sizeof(T));
       ::new(p) T(args...);
       return (T *)p;
     }
@@ -86,27 +79,6 @@ struct SvmAlloc {
 
   __attribute__((transaction_pure))
   static void ThreadExit() { }
-
-private:
-  __attribute__((transaction_pure))
-  static void* smalloc(size_t size) {
-    return sitevm::smalloc(size);
-  }
-
-  __attribute__((transaction_pure))
-  static void* scalloc(size_t no, size_t size) {
-    return sitevm::scalloc(no, size);
-  }
-
-  __attribute__((transaction_pure))
-  static void* srealloc(void* mem, size_t size) {
-    return sitevm::srealloc(mem, size);
-  }
-
-  __attribute__((transaction_pure))
-  static void sfree(void *p) {
-      sitevm::sfree((void *)p);
-  }
 };
 
 } // namespace slib
