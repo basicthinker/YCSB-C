@@ -25,6 +25,7 @@ class StringHashtable {
                                       std::size_t n = -1) const = 0;
   virtual std::size_t Size() const = 0;
 
+  __attribute__((transaction_safe))
   virtual ~StringHashtable() { }
 };
 

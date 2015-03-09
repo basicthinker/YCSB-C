@@ -59,7 +59,9 @@ class ItmSlibDB : public HashtableDB {
 
   const char *CopyString(const std::string &str) {
     void *value = Alloc::Malloc(str.length() + 1);
-    memcpy(value, (const void *)str.c_str(), str.length() + 1);
+    __transaction_atomic {
+      memcpy(value, (const void *)str.c_str(), str.length() + 1);
+    }
     return (char *)value;
   }
 

@@ -43,9 +43,7 @@ struct MemAlloc {
 
 struct SvmAlloc {
   static void *Malloc(std::size_t size) {
-    __transaction_atomic {
-      return sitevm::smalloc(size);
-    }
+    return sitevm::smalloc(size);
   }
 
   template <typename T>
@@ -59,7 +57,7 @@ struct SvmAlloc {
   template <typename T, typename... Arguments>
   static T *New(Arguments... args) {
     __transaction_atomic {
-      void *p = sitevm::smalloc(sizeof(T));
+      void *p = Malloc(sizeof(T));
       ::new(p) T(args...);
       return (T *)p;
     }
@@ -67,8 +65,10 @@ struct SvmAlloc {
 
   template <typename T> __attribute__((transaction_pure))
   static void Delete(T *p) {
-    p->~T();
-    Free(p, sizeof(T));
+    __transaction_atomic {
+      p->~T();
+      Free(p, sizeof(T));
+    }
   }
 
   __attribute__((transaction_pure))
