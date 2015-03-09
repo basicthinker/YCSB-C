@@ -10,6 +10,7 @@
 #define VM_PERSISTENCE_SLIB_MEM_ALLOC_H_
 
 #include <cstring>
+#include <iostream>
 #include "sitevm/sitevm.h"
 #include "slib/assert.h"
 
@@ -36,9 +37,6 @@ struct MemAlloc {
 
   template <typename T>
   static void Delete(T *p) { return delete p; }
-
-  static void ThreadInit() { }
-  static void ThreadExit() { }
 };
 
 struct SvmAlloc {
@@ -70,15 +68,6 @@ struct SvmAlloc {
       Free(p, sizeof(T));
     }
   }
-
-  __attribute__((transaction_pure))
-  static void ThreadInit() {
-    int err = sitevm::sitevm_enter();
-    assert(!err);
-  }
-
-  __attribute__((transaction_pure))
-  static void ThreadExit() { }
 };
 
 } // namespace slib

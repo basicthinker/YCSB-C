@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <future>
+#include "sitevm/sitevm.h"
 #include "slib/resident_thread.h"
 #include "core/utils.h"
 #include "core/timer.h"
@@ -26,7 +27,9 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
-  db->Open();
+  int err = sitevm::sitevm_enter();
+  assert(!err);
+
   ycsbc::Client client(*db, *wl);
   int oks = 0;
   for (int i = 0; i < num_ops; ++i) {
@@ -36,7 +39,6 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
       oks += client.DoTransaction();
     }
   }
-  db->Close();
   return oks;
 }
 
@@ -94,7 +96,7 @@ int main(const int argc, const char *argv[]) {
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
   cerr << total_ops / duration / 1000 << endl;
 
-  delete db;
+  ycsbc::DBFactory::DestroyDB(db);
 }
 
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {

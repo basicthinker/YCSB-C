@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "sitevm/sitevm.h"
 #include "lib/itm_slib_hashtable.h"
 
@@ -37,13 +38,6 @@ class ItmSlibDB : public HashtableDB {
     }
   }
 
-  void Open() {
-    Alloc::ThreadInit();
-  }
-
-  void Close() {
-    Alloc::ThreadExit();
-  }
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
     return Alloc::template New<vmp::ItmSlibHashtable<const char *, Alloc>>();

@@ -2,7 +2,7 @@ export SITEVM_HOME
 export LIBITM_HOME
 
 CC=g++
-CFLAGS=-std=gnu++11 -g -Wall -pthread -I./
+CFLAGS=-std=gnu++11 -g -Wall -pthread -I./ -I$(SITEVM_HOME) -I$(DUNE_HOME)
 LDFLAGS=-rdynamic -L$(SITEVM_HOME)/bin \
 	-lpthread -ltbb -lsitevm -ldune
 SUBDIRS=core db

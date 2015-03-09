@@ -18,7 +18,7 @@
 using ycsbc::DB;
 using ycsbc::DBFactory;
 
-DB* DBFactory::CreateDB(const std::string name) {
+DB *DBFactory::CreateDB(const std::string name) {
   if (name == "basic") {
     return new BasicDB;
   } else if (name == "lock_stl") {
@@ -32,10 +32,19 @@ DB* DBFactory::CreateDB(const std::string name) {
   } else if (name == "itm_slib") {
     char *method = std::getenv("ITM_DEFAULT_METHOD");
     if (method && strncmp(method, "svm", 3) == 0) {
-      return new ItmSlibDB<slib::SvmAlloc>;
+      return slib::SvmAlloc::New<ItmSlibDB<slib::SvmAlloc>>();
     } else {
       return new ItmSlibDB<slib::MemAlloc>;
     }
   } else return NULL;
+}
+
+void DBFactory::DestroyDB(DB *db) {
+  char *method = std::getenv("ITM_DEFAULT_METHOD");
+  if (method && strncmp(method, "svm", 3) == 0) {
+    slib::SvmAlloc::Delete(db);
+  } else {
+    delete db;
+  }
 }
 

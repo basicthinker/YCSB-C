@@ -17,6 +17,7 @@ namespace ycsbc {
 class DBFactory {
  public:
   static DB* CreateDB(const std::string name);
+  static void DestroyDB(DB *db);
 };
 
 } // ycsbc

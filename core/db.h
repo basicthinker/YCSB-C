@@ -21,16 +21,6 @@ class DB {
   static const int kErrorNoData = 1;
   static const int kErrorConflict = 2;
   ///
-  /// Initializes any state for accessing this DB.
-  /// Called once per DB client (thread); there is a single DB instance globally.
-  ///
-  virtual void Open() { }
-  ///
-  /// Clears any state for accessing this DB.
-  /// Called once per DB client (thread); there is a single DB instance globally.
-  ///
-  virtual void Close() { }
-  ///
   /// Reads a record from the database.
   /// Field/value pairs from the result are stored in a vector.
   ///
@@ -89,7 +79,8 @@ class DB {
   /// @return Zero on success, a non-zero error code on error.
   ///
   virtual int Delete(const std::string &table, const std::string &key) = 0;
-  
+
+  __attribute((transaction_safe))
   virtual ~DB() { }
 };
 
