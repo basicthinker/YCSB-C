@@ -27,8 +27,11 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
-  int err = sitevm::sitevm_enter();
-  assert(!err);
+  char *method = std::getenv("ITM_DEFAULT_METHOD");
+  if (method && strncmp(method, "svm", 3) == 0) {
+    int err = sitevm::sitevm_enter();
+    assert(!err);
+  }
 
   ycsbc::Client client(*db, *wl);
   int oks = 0;
@@ -61,8 +64,8 @@ int main(const int argc, const char *argv[]) {
   // Loads data
   vector<future<int>> actual_ops;
   int total_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
-  for (int i = 0; i < num_threads; ++i) {
-    actual_ops.emplace_back(threads[i].Run(
+  for (auto &t : threads) {
+    actual_ops.emplace_back(t.Run(
         DelegateClient, db, &wl, total_ops / num_threads, true));
   }
   assert((int)actual_ops.size() == num_threads);
@@ -79,8 +82,8 @@ int main(const int argc, const char *argv[]) {
   total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
   utils::Timer<double> timer;
   timer.Start();
-  for (int i = 0; i < num_threads; ++i) {
-    actual_ops.emplace_back(threads[i].Run(
+  for (auto &t : threads) {
+    actual_ops.emplace_back(t.Run(
         DelegateClient, db, &wl, total_ops / num_threads, false));
   }
   assert((int)actual_ops.size() == num_threads);
@@ -97,6 +100,15 @@ int main(const int argc, const char *argv[]) {
   cerr << total_ops / duration / 1000 << endl;
 
   ycsbc::DBFactory::DestroyDB(db);
+
+  for (auto &t : threads) {
+    t.Terminate();
+  }
+
+  char *method = std::getenv("ITM_DEFAULT_METHOD");
+  if (method && strncmp(method, "svm", 3) == 0) {
+    sitevm::sitevm_shutdown();
+  }
 }
 
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) {

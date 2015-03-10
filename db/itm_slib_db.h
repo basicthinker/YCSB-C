@@ -31,11 +31,6 @@ class ItmSlibDB : public HashtableDB {
       DeleteFieldHashtable(key_pair.second);
     }
     Alloc::Delete(key_table_);
-
-    char *method = std::getenv("ITM_DEFAULT_METHOD");
-    if (method && strncmp(method, "svm", 3) == 0) {
-      sitevm::sitevm_shutdown();
-    }
   }
 
  protected:

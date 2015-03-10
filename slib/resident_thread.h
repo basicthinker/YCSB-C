@@ -24,6 +24,7 @@ class ResidentThread {
   template <class Fn, class... Args>
   std::future<typename std::result_of<Fn(Args...)>::type>
   Run(Fn&& fn, Args&&... args);
+  void Terminate();
 
   ~ResidentThread();
 
@@ -71,8 +72,17 @@ ResidentThread::Run(Fn&& fn, Args&&... args) {
   return task->get_future();
 }
 
+void ResidentThread::Terminate() {
+  std::unique_lock<std::mutex> lock(cond_mutex_);
+  state_ = STOPPED;
+  lock.unlock();
+  cond_var_.notify_all();
+  thread_.join();
+}
+
 ResidentThread::~ResidentThread() {
   std::unique_lock<std::mutex> lock(cond_mutex_);
+  if (state_ == STOPPED) return;
   state_ = STOPPED;
   lock.unlock();
   cond_var_.notify_all();
