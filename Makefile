@@ -5,7 +5,7 @@ CC=g++
 CFLAGS=-std=gnu++11 -g -Wall -O3 -pthread \
 	-I./ -I$(SITEVM_HOME) -I$(DUNE_HOME) -I$(PLIB_HOME)
 LDFLAGS=-rdynamic -L$(SITEVM_HOME)/bin -L$(PLIB_HOME) \
-	-lpthread -ltbb -lsitevm -ldune -lvp -lrt
+	-lpthread -ltbb -lsitevm -ldune -lvp -lrt -laerospike -lcrypto
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)

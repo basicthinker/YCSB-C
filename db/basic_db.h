@@ -35,7 +35,7 @@ class BasicDB : public DB {
     cout << "READ " << table << ' ' << key;
     if (fields) {
       cout << " [ ";
-      for (auto f : *fields) {
+      for (auto &f : *fields) {
         cout << f << ' ';
       }
       cout << ']' << endl;
@@ -52,7 +52,7 @@ class BasicDB : public DB {
     cout << "SCAN " << table << ' ' << key << " " << len;
     if (fields) {
       cout << " [ ";
-      for (auto f : *fields) {
+      for (auto &f : *fields) {
         cout << f << ' ';
       }
       cout << ']' << endl;
@@ -66,7 +66,7 @@ class BasicDB : public DB {
              std::vector<KVPair> &values) {
     std::lock_guard<std::mutex> lock(mutex_);
     cout << "UPDATE " << table << ' ' << key << " [ ";
-    for (auto v : values) {
+    for (auto &v : values) {
       cout << v.first << '=' << v.second << ' ';
     }
     cout << ']' << endl;
@@ -77,7 +77,7 @@ class BasicDB : public DB {
              std::vector<KVPair> &values) {
     std::lock_guard<std::mutex> lock(mutex_);
     cout << "INSERT " << table << ' ' << key << " [ ";
-    for (auto v : values) {
+    for (auto &v : values) {
       cout << v.first << '=' << v.second << ' ';
     }
     cout << ']' << endl;

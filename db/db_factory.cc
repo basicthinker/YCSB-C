@@ -1,5 +1,5 @@
 //
-//  basic_db.cc
+//  db_factory.cc
 //  YCSB-C
 //
 //  Created by Jinglei Ren on 12/17/14.
@@ -14,6 +14,7 @@
 #include "db/tbb_rand_db.h"
 #include "db/tbb_scan_db.h"
 #include "db/itm_slib_db.h"
+#include "db/aerospike_db.h"
 
 using ycsbc::DB;
 using ycsbc::DBFactory;
@@ -36,6 +37,10 @@ DB *DBFactory::CreateDB(const std::string name) {
     } else {
       return new ItmSlibDB<slib::MemAlloc>;
     }
+  } else if (name == "aerospike") {
+    AerospikeDB *db = new AerospikeDB;
+    db->Open("localhost", 3000);
+    return db;
   } else return NULL;
 }
 
