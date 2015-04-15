@@ -1,11 +1,20 @@
-export SITEVM_HOME
-export LIBITM_HOME
-
 CC=g++
-CFLAGS=-std=gnu++11 -g -Wall -O3 -pthread \
-	-I./ -I$(SITEVM_HOME) -I$(DUNE_HOME) -I$(PLIB_HOME)
-LDFLAGS=-rdynamic -L$(SITEVM_HOME)/bin -L$(PLIB_HOME) \
-	-lpthread -ltbb -lsitevm -ldune -lvp -lrt -laerospike -lcrypto
+CFLAGS=-std=gnu++11 -g -Wall -O3 -pthread -I./
+LDFLAGS=-rdynamic -ltbb -laerospike -lcrypto
+
+ifdef SITEVM_HOME
+CFLAGS+=-I$(SITEVM_HOME)
+LDFLAGS+=-L$(SITEVM_HOME)/bin -lsitevm -lpthread
+endif
+ifdef DUNE_HOME
+CFLAGS+=-I$(DUNE_HOME)
+LDFLAGS+=-ldune
+endif
+ifdef PLIB_HOME
+CFLAGS+=-I$(PLIB_HOME)
+LDFLAGS+=-L$(PLIB_HOME) -lvp -lrt
+endif
+
 SUBDIRS=core db
 SUBSRCS=$(wildcard core/*.cc) $(wildcard db/*.cc)
 OBJECTS=$(SUBSRCS:.cc=.o)

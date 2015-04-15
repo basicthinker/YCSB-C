@@ -1,6 +1,17 @@
 CC=g++
 CFLAGS=-std=gnu++11 -c -g -Wall -fgnu-tm
-INCLUDES=-I../ -I$(SITEVM_HOME) -I$(DUNE_HOME) -I$(PLIB_HOME)
+INCLUDES=-I../
+
+ifdef SITEVM_HOME
+INCLUDES+=-I$(SITEVM_HOME)
+endif
+ifdef DUNE_HOME
+INCLUDES+=-I$(DUNE_HOME)
+endif
+ifdef PLIB_HOME
+INCLUDES+=-I$(PLIB_HOME)
+endif
+
 SOURCES=$(wildcard *.cc)
 OBJECTS=$(SOURCES:.cc=.o)
 
