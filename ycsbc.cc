@@ -54,7 +54,6 @@ int main(const int argc, const char *argv[]) {
     cout << "Unknown database name " << props["dbname"] << endl;
     exit(0);
   }
-
   ycsbc::CoreWorkload wl;
   wl.Init(props);
 
@@ -76,7 +75,7 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   cerr << "# Loading records:\t" << sum << endl;
-
+  sitevm::sitevm_sync();
   // Peforms transactions
   actual_ops.clear();
   total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
@@ -99,7 +98,7 @@ int main(const int argc, const char *argv[]) {
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
   cerr << total_ops / duration / 1000 << endl;
 
-  ycsbc::DBFactory::DestroyDB(db);
+  //ycsbc::DBFactory::DestroyDB(db);
 
   for (auto &t : threads) {
     t.Terminate();

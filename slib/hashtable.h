@@ -254,6 +254,7 @@ hashtable<K, V, HashEqual, Alloc>::~hashtable() {
 
 template <typename K, typename V, class HashEqual, class Alloc>
 void hashtable<K, V, HashEqual, Alloc>::rehash(std::size_t n) {
+  //Assert(false, "REHASH\n");
   hlist_bucket *bkts = new_buckets<Alloc>(n);
   std::size_t num = 0;
   for (std::size_t i = 0; i < bucket_count_; ++i) {
