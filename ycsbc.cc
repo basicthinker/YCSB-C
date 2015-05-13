@@ -27,8 +27,12 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
 int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
     bool is_loading) {
-  char *method = std::getenv("ITM_DEFAULT_METHOD");
-  if (method && strncmp(method, "svm", 3) == 0) {
+  char *name = getenv("DB_NAME");
+  assert(name);
+  char *method;
+  if (strcmp(name, "itm_slib") == 0 &&
+      (method = getenv("ITM_DEFAULT_METHOD")) &&
+      strcmp(method, "svm") == 0) {
     int err = sitevm::sitevm_enter();
     assert(!err);
   }
@@ -52,8 +56,10 @@ int main(const int argc, const char *argv[]) {
   ycsbc::DB *db = ycsbc::DBFactory::CreateDB(props["dbname"]);
   if (!db) {
     cout << "Unknown database name " << props["dbname"] << endl;
-    exit(0);
+    exit(EXIT_FAILURE);
   }
+  setenv("DB_NAME", props["dbname"].c_str(), 1);
+
   ycsbc::CoreWorkload wl;
   wl.Init(props);
 
@@ -118,7 +124,7 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
       argindex++;
       if (argindex >= argc) {
         UsageMessage(argv[0]);
-        exit(0);
+        exit(EXIT_FAILURE);
       }
       props.SetProperty("threadcount", argv[argindex]);
       argindex++;
@@ -126,7 +132,7 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
       argindex++;
       if (argindex >= argc) {
         UsageMessage(argv[0]);
-        exit(0);
+        exit(EXIT_FAILURE);
       }
       props.SetProperty("dbname", argv[argindex]);
       argindex++;
@@ -134,7 +140,7 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
       argindex++;
       if (argindex >= argc) {
         UsageMessage(argv[0]);
-        exit(0);
+        exit(EXIT_FAILURE);
       }
       filename.assign(argv[argindex]);
       ifstream input(argv[argindex]);
@@ -142,19 +148,19 @@ string ParseCommandLine(int argc, const char *argv[], utils::Properties &props) 
         props.Load(input);
       } catch (const string &message) {
         cout << message << endl;
-        exit(0);
+        exit(EXIT_FAILURE);
       }
       input.close();
       argindex++;
     } else {
       cout << "Unknown option " << argv[argindex] << endl;
-      exit(0);
+      exit(EXIT_FAILURE);
     }
   }
 
   if (argindex == 1 || argindex != argc) {
     UsageMessage(argv[0]);
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   return filename;
