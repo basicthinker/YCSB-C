@@ -8,7 +8,7 @@ LDFLAGS+=-L$(SITEVM_HOME)/bin -lsitevm -lpthread
 endif
 ifdef DUNE_HOME
 CFLAGS+=-I$(DUNE_HOME)
-LDFLAGS+=-ldune
+LDFLAGS+=-L$(DUNE_HOME)/libdune -ldune
 endif
 ifdef PLIB_HOME
 CFLAGS+=-I$(PLIB_HOME)
