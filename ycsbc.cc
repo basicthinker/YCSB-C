@@ -81,7 +81,13 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   cerr << "# Loading records:\t" << sum << endl;
-  sitevm::sitevm_sync();
+
+  char *method;
+  if (props["dbname"] == "itm_slib" &&
+      (method = getenv("ITM_DEFAULT_METHOD")) && strcmp(method, "svm") == 0) {
+    sitevm::sitevm_sync();
+  }
+
   // Peforms transactions
   actual_ops.clear();
   total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
@@ -110,8 +116,8 @@ int main(const int argc, const char *argv[]) {
     t.Terminate();
   }
 
-  char *method = std::getenv("ITM_DEFAULT_METHOD");
-  if (method && strncmp(method, "svm", 3) == 0) {
+  if (props["dbname"] == "itm_slib" &&
+      (method = getenv("ITM_DEFAULT_METHOD")) && strcmp(method, "svm") == 0) {
     sitevm::sitevm_shutdown();
   }
 }
