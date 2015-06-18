@@ -4,7 +4,7 @@ LDFLAGS=-rdynamic -ltbb -laerospike -lcrypto
 
 ifdef SITEVM_HOME
 CFLAGS+=-I$(SITEVM_HOME)
-LDFLAGS+=-L$(SITEVM_HOME)/bin -lsitevm -lpthread
+LDFLAGS+=-L$(SITEVM_HOME)/bin -lsitevm -lpthread -lboost_system -lz
 endif
 ifdef DUNE_HOME
 CFLAGS+=-I$(DUNE_HOME)
@@ -12,7 +12,7 @@ LDFLAGS+=-L$(DUNE_HOME)/libdune -ldune
 endif
 ifdef PLIB_HOME
 CFLAGS+=-I$(PLIB_HOME)
-LDFLAGS+=-L$(PLIB_HOME) -lvp -lrt
+LDFLAGS+=-L$(PLIB_HOME) -lpmem -lrt
 endif
 
 SUBDIRS=core db

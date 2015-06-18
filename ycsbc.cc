@@ -7,26 +7,30 @@
 //
 
 #include <cstring>
-#include <string>
-#include <iostream>
-#include <vector>
+#include <chrono>
 #include <future>
+#include <iostream>
+#include <string>
+#include <vector>
 #include "sitevm/sitevm.h"
 #include "slib/resident_thread.h"
-#include "core/utils.h"
-#include "core/timer.h"
 #include "core/client.h"
 #include "core/core_workload.h"
+#include "core/utils.h"
 #include "db/db_factory.h"
 
 using namespace std;
+using namespace std::chrono;
 
 void UsageMessage(const char *command);
 bool StrStartWith(const char *str, const char *pre);
 string ParseCommandLine(int argc, const char *argv[], utils::Properties &props);
 
-int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
-    bool is_loading) {
+alignas(64) std::atomic_uint_fast64_t g_total_num(0);
+alignas(64) uint64_t n1, n2;
+high_resolution_clock::time_point t1, t2;
+
+int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, bool is_loading) {
   char *name = getenv("DB_NAME");
   assert(name);
   char *method;
@@ -39,11 +43,16 @@ int DelegateClient(ycsbc::DB *db, ycsbc::CoreWorkload *wl, const int num_ops,
 
   ycsbc::Client client(*db, *wl);
   int oks = 0;
-  for (int i = 0; i < num_ops; ++i) {
+  while (true) {
+    uint64_t seq = g_total_num++;
+    if (seq == n1) t1 = high_resolution_clock::now();
+    else if (seq == n2) t2 = high_resolution_clock::now();
+    else if (seq > n2) break;
+
     if (is_loading) {
       oks += client.DoInsert();
     } else {
-      oks += client.DoTransaction();
+     oks += client.DoTransaction();
     }
   }
   return oks;
@@ -68,10 +77,11 @@ int main(const int argc, const char *argv[]) {
 
   // Loads data
   vector<future<int>> actual_ops;
-  int total_ops = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
+  n1 = 0;
+  n2 = stoi(props[ycsbc::CoreWorkload::RECORD_COUNT_PROPERTY]);
   for (auto &t : threads) {
     actual_ops.emplace_back(t.Run(
-        DelegateClient, db, &wl, total_ops / num_threads, true));
+        DelegateClient, db, &wl, true));
   }
   assert((int)actual_ops.size() == num_threads);
 
@@ -81,15 +91,21 @@ int main(const int argc, const char *argv[]) {
     sum += n.get();
   }
   cerr << "# Loading records:\t" << sum << endl;
-  sitevm::sitevm_sync();
+ 
+  char *method;
+  if (props["dbname"] == "itm_slib" &&
+      (method = getenv("ITM_DEFAULT_METHOD")) && strcmp(method, "svm") == 0) {
+    sitevm::sitevm_sync();
+  }
+
   // Peforms transactions
   actual_ops.clear();
-  total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
-  utils::Timer<double> timer;
-  timer.Start();
+  int total_ops = stoi(props[ycsbc::CoreWorkload::OPERATION_COUNT_PROPERTY]);
+  n1 = 0.1 * total_ops;
+  n2 = 0.9 * total_ops;
   for (auto &t : threads) {
     actual_ops.emplace_back(t.Run(
-        DelegateClient, db, &wl, total_ops / num_threads, false));
+        DelegateClient, db, &wl, false));
   }
   assert((int)actual_ops.size() == num_threads);
 
@@ -98,11 +114,14 @@ int main(const int argc, const char *argv[]) {
     assert(n.valid());
     sum += n.get();
   }
-  double duration = timer.End();
+
+  int64_t nsec = duration_cast<nanoseconds>(t2 - t1).count();
+  double thr = (n2 - n1) * 1000000.0 / nsec; // KTPS
+  uint64_t latency = num_threads * nsec / (n2 - n1) / 1000; // usec
 
   cerr << "# Transaction throughput (KTPS)" << endl;
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
-  cerr << total_ops / duration / 1000 << endl;
+  cerr << thr << '\t' << latency << endl;
 
   //ycsbc::DBFactory::DestroyDB(db);
 
@@ -110,8 +129,8 @@ int main(const int argc, const char *argv[]) {
     t.Terminate();
   }
 
-  char *method = std::getenv("ITM_DEFAULT_METHOD");
-  if (method && strncmp(method, "svm", 3) == 0) {
+  if (props["dbname"] == "itm_slib" &&
+      (method = getenv("ITM_DEFAULT_METHOD")) && strcmp(method, "svm") == 0) {
     sitevm::sitevm_shutdown();
   }
 }
