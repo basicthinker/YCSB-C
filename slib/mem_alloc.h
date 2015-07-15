@@ -41,15 +41,19 @@ struct MemAlloc {
 
 struct SvmAlloc {
   static void *Malloc(std::size_t size) {
-    return sitevm::smalloc(size);
+    void* ret;
+    __transaction_atomic{
+      ret = sitevm::smalloc(size);
+    }
+    return ret;
   }
 
   template <typename T>
   static void Free(T *p, std::size_t size) {
-    //__transaction_atomic {
+    __transaction_atomic {
     //memset((void *)p, 255, size);
       sitevm::sfree((void *)p);
-      //}
+    }
   }
 
   template <typename T, typename... Arguments>
