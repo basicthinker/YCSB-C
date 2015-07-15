@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=gnu++11 -c -g -Wall -fgnu-tm
+CFLAGS=-std=gnu++1y -c -g -Wall -fgnu-tm
 INCLUDES=-I../
 
 ifdef SITEVM_HOME

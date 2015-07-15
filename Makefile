@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=gnu++11 -g -Wall -O3 -pthread -I./
+CFLAGS=-std=gnu++1y -g -O3 -Wall -pthread -I./
 LDFLAGS=-rdynamic -ltbb -laerospike -lcrypto
 
 ifdef SITEVM_HOME
