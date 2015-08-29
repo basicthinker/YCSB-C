@@ -33,7 +33,7 @@ DB *DBFactory::CreateDB(const std::string name) {
   } else if (name == "itm_slib") {
     char *method = std::getenv("ITM_DEFAULT_METHOD");
     if (method && strcmp(method, "svm") == 0) {
-      return slib::SvmAlloc::New<ItmSlibDB<slib::SvmAlloc>>();
+      return new ItmSlibDB<slib::SvmAlloc>;
     } else {
       return new ItmSlibDB<slib::MemAlloc>;
     }
@@ -43,17 +43,3 @@ DB *DBFactory::CreateDB(const std::string name) {
     return db;
   } else return NULL;
 }
-
-void DBFactory::DestroyDB(DB *db) {
-  char *name = getenv("DB_NAME");
-  assert(name);
-  char *method;
-  if (strcmp(name, "itm_slib") == 0 &&
-      (method = getenv("ITM_DEFAULT_METHOD")) &&
-      strcmp(method, "svm") == 0) {
-    slib::SvmAlloc::Delete(db);
-  } else {
-    delete db;
-  }
-}
-

@@ -123,8 +123,6 @@ int main(const int argc, const char *argv[]) {
   cerr << props["dbname"] << '\t' << file_name << '\t' << num_threads << '\t';
   cerr << thr << '\t' << latency << endl;
 
-  //ycsbc::DBFactory::DestroyDB(db);
-
   for (auto &t : threads) {
     t.Terminate();
   }
