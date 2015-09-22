@@ -8,8 +8,8 @@ endif
 ifdef DUNE_HOME
 INCLUDES+=-I$(DUNE_HOME)
 endif
-ifdef PLIB_HOME
-INCLUDES+=-I$(PLIB_HOME)
+ifdef VMP_HOME
+INCLUDES+=-I$(VMP_HOME)
 endif
 
 SOURCES=$(wildcard *.cc)

@@ -12,6 +12,7 @@
 #include <cassert>
 #include <cstdint>
 
+#include "slib/assert.h"
 #include "slib/mem_alloc.h"
 #include "slib/string.h"
 

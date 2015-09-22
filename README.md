@@ -20,7 +20,7 @@ Variable name | Note | Example
 --------------|------|--------
 **SITEVM\_HOME** | Top directory of the sitevm project. | SITEVM\_HOME=$HOME/Projects/sitevm\_dune
 **LIBITM\_HOME** | Output path of the libitm project. This directory should inlucde libitm.a. | LIBITM\_HOME=$HOME/Projects/gcc/x86\_64-unknown-linux-gnu/libitm
-**PLIB\_HOME**(optional) | If the sitevm project is using persistence, this variable has to be set to the plib directory of vm-persistence (https://github.com/basicthinker/vm-persistence) | PLIB\_HOME=$HOME/Projects/vm-persistence/plib
+**VMP\_HOME**(optional) | If the sitevm project supports persistence, this variable has to be set to the top directory of vm-persistence (https://github.com/basicthinker/vm-persistence) | VMP\_HOME=$HOME/Projects/vm-persistence
 
 ### 3. Prerequisites
 

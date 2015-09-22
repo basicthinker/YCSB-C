@@ -10,9 +10,9 @@ ifdef DUNE_HOME
 CFLAGS+=-I$(DUNE_HOME)
 LDFLAGS+=-L$(DUNE_HOME)/libdune -ldune
 endif
-ifdef PLIB_HOME
-CFLAGS+=-I$(PLIB_HOME)
-LDFLAGS+=-L$(PLIB_HOME) -lpmem -lrt
+ifdef VMP_HOME
+CFLAGS+=-I$(VMP_HOME)
+LDFLAGS+=-lpmem -lrt
 endif
 
 SUBDIRS=core db
