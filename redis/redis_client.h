@@ -41,6 +41,8 @@ inline RedisClient::RedisClient(const char *host, int port, bool sync) :
     }
     exit(1);
   }
+  std::cerr << "Redis connected to " << host << ":" << port;
+  std::cerr << " sync=" << sync << std::endl;
 }
 
 inline RedisClient::~RedisClient() {

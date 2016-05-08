@@ -8,11 +8,14 @@
 
 #include "db/db_factory.h"
 
+#include <string>
 #include "db/basic_db.h"
 #include "db/lock_stl_db.h"
+#include "db/redis_db.h"
 #include "db/tbb_rand_db.h"
 #include "db/tbb_scan_db.h"
 
+using namespace std;
 using ycsbc::DB;
 using ycsbc::DBFactory;
 
@@ -21,6 +24,10 @@ DB* DBFactory::CreateDB(utils::Properties &props) {
     return new BasicDB;
   } else if (props["dbname"] == "lock_stl") {
     return new LockStlDB;
+  } else if (props["dbname"] == "redis") {
+    int port = stoi(props["port"]);
+    int sync = stoi(props["sync"]);
+    return new RedisDB(props["host"].c_str(), port, sync);
   } else if (props["dbname"] == "tbb_rand") {
     return new TbbRandDB;
   } else if (props["dbname"] == "tbb_scan") {
