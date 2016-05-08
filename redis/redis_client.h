@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <string>
-#include <hiredis.h>
+#include "redis/hiredis/hiredis.h"
 
 namespace ycsbc {
 
@@ -18,6 +18,7 @@ class RedisClient {
 
   int Command(std::string cmd, int num_replicas = 3, int timeout_ms = 3000);
 
+  redisContext *context() { return context_; }
  private:
   void HandleError(redisReply *reply, const char *hint);
 
@@ -28,7 +29,8 @@ class RedisClient {
 //
 // Implementation
 //
-RedisClient::RedisClient(const char *host, int port, bool sync) : sync_(sync) {
+inline RedisClient::RedisClient(const char *host, int port, bool sync) :
+    sync_(sync) {
   context_ = redisConnect(host, port);
   if (!context_ || context_->err) {
     if (context_) {
@@ -41,17 +43,17 @@ RedisClient::RedisClient(const char *host, int port, bool sync) : sync_(sync) {
   }
 }
 
-RedisClient::~RedisClient() {
+inline RedisClient::~RedisClient() {
   if (context_) {
     redisFree(context_);
   }
 }
 
-int RedisClient::Command(std::string cmd, int num_replicas, int timeout_ms) {
+inline int RedisClient::Command(std::string cmd, int n, int t) {
   redisReply *reply;
   redisAppendCommand(context_, cmd.data());
   if (sync_) {
-    redisAppendCommand(context_, "WAIT %d %d", num_replicas, timeout_ms);
+    redisAppendCommand(context_, "WAIT %d %d", n, t);
   }
   if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
     HandleError(reply, cmd.c_str());
@@ -64,7 +66,7 @@ int RedisClient::Command(std::string cmd, int num_replicas, int timeout_ms) {
   return 0;
 }
 
-void RedisClient::HandleError(redisReply *reply, const char *hint) {
+inline void RedisClient::HandleError(redisReply *reply, const char *hint) {
   std::cerr << hint << " error: " << context_->errstr << std::endl;
   if (reply) freeReplyObject(reply);
   redisFree(context_);
