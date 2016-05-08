@@ -59,10 +59,12 @@ inline int RedisClient::Command(std::string cmd, int n, int t) {
     HandleError(reply, cmd.c_str());
   }
   freeReplyObject(reply);
-  if (sync_ && redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
-    HandleError(reply, "WAIT");
+  if (sync_) {
+    if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
+      HandleError(reply, "WAIT");
+    }
+    freeReplyObject(reply);
   }
-  freeReplyObject(reply);
   return 0;
 }
 

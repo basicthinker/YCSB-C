@@ -31,8 +31,8 @@ int RedisDB::Read(const string &table, const string &key,
     assert(reply->type == REDIS_REPLY_ARRAY);
     assert(fields->size() == reply->elements);
     for (size_t i = 0; i < reply->elements; ++i) {
-      result.push_back(make_pair(
-          fields->at(i), string(reply->element[i]->str)));
+      const char *value = reply->element[i]->str;
+      result.push_back(make_pair(fields->at(i), string(value ? value : "")));
     }
     freeReplyObject(reply);
   } else {

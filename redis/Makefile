@@ -6,9 +6,10 @@ LDFLAGS=-lhiredis
 
 all: hiredis sample
 
-sample:	sample.cc $(HEADERS)
+sample:	sample.cc ../db/redis_db.o $(HEADERS)
 	$(MAKE) -C ./hiredis
-	$(CC) $(CFLAGS) $(INCLUDES) $< $(LDFLAGS) -o $@
+	$(MAKE) -C ../db
+	$(CC) $(CFLAGS) $(INCLUDES) $< ../db/redis_db.o $(LDFLAGS) -o $@
 
 clean:
 	$(RM) sample
