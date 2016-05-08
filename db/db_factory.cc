@@ -16,14 +16,14 @@
 using ycsbc::DB;
 using ycsbc::DBFactory;
 
-DB* DBFactory::CreateDB(const std::string name) {
-  if (name == "basic") {
+DB* DBFactory::CreateDB(utils::Properties &props) {
+  if (props["dbname"] == "basic") {
     return new BasicDB;
-  } else if (name == "lock_stl") {
+  } else if (props["dbname"] == "lock_stl") {
     return new LockStlDB;
-  } else if (name == "tbb_rand") {
+  } else if (props["dbname"] == "tbb_rand") {
     return new TbbRandDB;
-  } else if (name == "tbb_scan") {
+  } else if (props["dbname"] == "tbb_scan") {
     return new TbbScanDB;
   } else return NULL;
 }

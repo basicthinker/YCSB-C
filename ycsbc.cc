@@ -43,7 +43,7 @@ int main(const int argc, const char *argv[]) {
   utils::Properties props;
   string file_name = ParseCommandLine(argc, argv, props);
 
-  ycsbc::DB *db = ycsbc::DBFactory::CreateDB(props["dbname"]);
+  ycsbc::DB *db = ycsbc::DBFactory::CreateDB(props);
   if (!db) {
     cout << "Unknown database name " << props["dbname"] << endl;
     exit(0);
