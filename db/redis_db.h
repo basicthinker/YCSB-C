@@ -21,8 +21,8 @@ namespace ycsbc {
 
 class RedisDB : public DB {
  public:
-  RedisDB(const char *host, int port, bool sync) :
-      redis_(host, port, sync) {
+  RedisDB(const char *host, int port, int slaves) :
+      redis_(host, port, slaves) {
   }
 
   int Read(const std::string &table, const std::string &key,

@@ -13,24 +13,24 @@ namespace ycsbc {
 
 class RedisClient {
  public:
-  RedisClient(const char *host, int port, bool sync);
+  RedisClient(const char *host, int port, int slaves);
   ~RedisClient();
 
-  int Command(std::string cmd, int num_replicas = 3, int timeout_ms = 3000);
+  int Command(std::string cmd);
 
   redisContext *context() { return context_; }
  private:
   void HandleError(redisReply *reply, const char *hint);
 
   redisContext *context_;
-  bool sync_;
+  int slaves_;
 };
 
 //
 // Implementation
 //
-inline RedisClient::RedisClient(const char *host, int port, bool sync) :
-    sync_(sync) {
+inline RedisClient::RedisClient(const char *host, int port, int slaves) :
+    slaves_(slaves) {
   context_ = redisConnect(host, port);
   if (!context_ || context_->err) {
     if (context_) {
@@ -41,8 +41,6 @@ inline RedisClient::RedisClient(const char *host, int port, bool sync) :
     }
     exit(1);
   }
-  std::cerr << "Redis connected to " << host << ":" << port;
-  std::cerr << " sync=" << sync << std::endl;
 }
 
 inline RedisClient::~RedisClient() {
@@ -51,17 +49,17 @@ inline RedisClient::~RedisClient() {
   }
 }
 
-inline int RedisClient::Command(std::string cmd, int n, int t) {
+inline int RedisClient::Command(std::string cmd) {
   redisReply *reply;
   redisAppendCommand(context_, cmd.data());
-  if (sync_) {
-    redisAppendCommand(context_, "WAIT %d %d", n, t);
+  if (slaves_) {
+    redisAppendCommand(context_, "WAIT %d %d", slaves_, 0);
   }
   if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
     HandleError(reply, cmd.c_str());
   }
   freeReplyObject(reply);
-  if (sync_) {
+  if (slaves_) {
     if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
       HandleError(reply, "WAIT");
     }
