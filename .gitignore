@@ -36,3 +36,6 @@
 *.log
 *.data
 *.output
+
+redis/sample
+ycsbc

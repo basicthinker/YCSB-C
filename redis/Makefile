@@ -8,6 +8,7 @@ all: hiredis sample
 
 sample:	sample.cc ../db/redis_db.o $(HEADERS)
 	$(MAKE) -C ./hiredis
+	sudo $(MAKE) install -C ./hiredis
 	$(MAKE) -C ../db
 	$(CC) $(CFLAGS) $(INCLUDES) $< ../db/redis_db.o $(LDFLAGS) -o $@
 
