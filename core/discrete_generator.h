@@ -11,8 +11,9 @@
 
 #include "generator.h"
 
-#include <vector>
+#include <atomic>
 #include <cassert>
+#include <vector>
 #include "utils.h"
 
 namespace ycsbc {
@@ -22,12 +23,14 @@ class DiscreteGenerator : public Generator<Value> {
  public:
   DiscreteGenerator() : sum_(0) { }
   void AddValue(Value value, double weight);
+
   Value Next();
   Value Last() { return last_; }
+
  private:
   std::vector<std::pair<Value, double>> values_;
   double sum_;
-  Value last_;
+  std::atomic<Value> last_;
 };
 
 template <typename Value>
