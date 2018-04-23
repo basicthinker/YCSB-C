@@ -11,6 +11,7 @@
 
 #include "generator.h"
 
+#include <atomic>
 #include <cstdint>
 #include "counter_generator.h"
 #include "zipfian_generator.h"
@@ -29,7 +30,7 @@ class SkewedLatestGenerator : public Generator<uint64_t> {
  private:
   CounterGenerator &basis_;
   ZipfianGenerator zipfian_;
-  uint64_t last_;
+  std::atomic<uint64_t> last_;
 };
 
 inline uint64_t SkewedLatestGenerator::Next() {
