@@ -9,9 +9,10 @@
 #ifndef YCSB_C_ZIPFIAN_GENERATOR_H_
 #define YCSB_C_ZIPFIAN_GENERATOR_H_
 
-#include <cstdint>
-#include <cmath>
 #include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <mutex>
 #include "utils.h"
 
 namespace ycsbc {
@@ -41,7 +42,7 @@ class ZipfianGenerator : public Generator<uint64_t> {
   
   uint64_t Next() { return Next(num_items_); }
 
-  uint64_t Last() { return last_value_; }
+  uint64_t Last();
   
  private:
   ///
@@ -85,10 +86,13 @@ class ZipfianGenerator : public Generator<uint64_t> {
   double theta_, zeta_n_, eta_, alpha_, zeta_2_;
   uint64_t n_for_zeta_; /// Number of items used to compute zeta_n
   uint64_t last_value_;
+  std::mutex lock_;
 };
 
 inline uint64_t ZipfianGenerator::Next(uint64_t num) {
   assert(num >= 2 && num < kMaxNumItems);
+  std::lock_guard<std::mutex> lock(g_i_mutex);
+
   if (num > n_for_zeta_) { // Recompute zeta_n and eta
     RaiseZeta(num);
     eta_ = Eta();
@@ -106,6 +110,11 @@ inline uint64_t ZipfianGenerator::Next(uint64_t num) {
   }
 
   return last_value_ = base_ + num * std::pow(eta_ * u - eta_ + 1, alpha_);
+}
+
+inline uint64_t ZipfianGenerator::Last() {
+  std::lock_guard<std::mutex> lock(g_i_mutex);
+  return last_value_;
 }
 
 }
