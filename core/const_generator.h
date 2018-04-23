@@ -17,8 +17,8 @@ namespace ycsbc {
 class ConstGenerator : public Generator<uint64_t> {
  public:
   ConstGenerator(int constant) : constant_(constant) { }
-  uint64_t Next() { return constant_; }
-  uint64_t Last() { return constant_; }
+  uint64_t Next() const { return constant_; }
+  uint64_t Last() const { return constant_; }
  private:
   uint64_t constant_;
 };
