@@ -46,11 +46,11 @@ template <typename Value>
 inline Value DiscreteGenerator<Value>::Next() {
   double chooser = utils::RandomDouble();
   
-  for (auto p : values_) {
-    if (chooser < p.second / sum_) {
-      return last_ = p.first;
+  for (auto p = values_.cbegin(); p != values_.cend(); ++p) {
+    if (chooser < p->second / sum_) {
+      return last_ = p->first;
     }
-    chooser -= p.second / sum_;
+    chooser -= p->second / sum_;
   }
   
   assert(false);
