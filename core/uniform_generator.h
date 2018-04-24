@@ -12,7 +12,7 @@
 #include "generator.h"
 
 #include <atomic>
-#include <chrono>
+#include <mutex>
 #include <random>
 
 namespace ycsbc {
@@ -22,16 +22,25 @@ class UniformGenerator : public Generator<uint64_t> {
   // Both min and max are inclusive
   UniformGenerator(uint64_t min, uint64_t max) : dist_(min, max) { Next(); }
   
-  uint64_t Next() { return last_int_ = dist_(generator_); }
-  uint64_t Last() { return last_int_; }
+  uint64_t Next();
+  uint64_t Last();
   
  private:
+  std::mt19937_64 generator_;
   std::uniform_int_distribution<uint64_t> dist_;
-
-  static thread_local uint64_t last_int_(0);
-  static thread_local std::mt19937_64 generator_(
-      std::chrono::system_clock::now().time_since_epoch().count());
+  uint64_t last_int_;
+  std::mutex mutex_;
 };
+
+inline uint64_t UniformGenerator::Next() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return last_int_ = dist_(generator_);
+}
+
+inline uint64_t UniformGenerator::Last() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return last_int_;
+}
 
 } // ycsbc
 

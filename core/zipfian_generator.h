@@ -86,12 +86,12 @@ class ZipfianGenerator : public Generator<uint64_t> {
   double theta_, zeta_n_, eta_, alpha_, zeta_2_;
   uint64_t n_for_zeta_; /// Number of items used to compute zeta_n
   uint64_t last_value_;
-  std::mutex lock_;
+  std::mutex mutex_;
 };
 
 inline uint64_t ZipfianGenerator::Next(uint64_t num) {
   assert(num >= 2 && num < kMaxNumItems);
-  std::lock_guard<std::mutex> lock(g_i_mutex);
+  std::lock_guard<std::mutex> lock(mutex_);
 
   if (num > n_for_zeta_) { // Recompute zeta_n and eta
     RaiseZeta(num);
@@ -113,7 +113,7 @@ inline uint64_t ZipfianGenerator::Next(uint64_t num) {
 }
 
 inline uint64_t ZipfianGenerator::Last() {
-  std::lock_guard<std::mutex> lock(g_i_mutex);
+  std::lock_guard<std::mutex> lock(mutex_);
   return last_value_;
 }
 
