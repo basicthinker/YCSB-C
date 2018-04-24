@@ -10,6 +10,9 @@
 #define YCSB_C_UNIFORM_GENERATOR_H_
 
 #include "generator.h"
+
+#include <atomic>
+#include <chrono>
 #include <random>
 
 namespace ycsbc {
@@ -23,9 +26,11 @@ class UniformGenerator : public Generator<uint64_t> {
   uint64_t Last() { return last_int_; }
   
  private:
-  uint64_t last_int_;
-  std::mt19937_64 generator_;
   std::uniform_int_distribution<uint64_t> dist_;
+
+  static thread_local uint64_t last_int_(0);
+  static thread_local std::mt19937_64 generator_(
+      std::chrono::system_clock::now().time_since_epoch().count());
 };
 
 } // ycsbc
