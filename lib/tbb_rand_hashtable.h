@@ -12,7 +12,6 @@
 
 #include <vector>
 #include "tbb/concurrent_hash_map.h"
-#include "tbb/queuing_rw_mutex.h"
 #include "lib/string.h"
 
 namespace vmp {
@@ -38,13 +37,11 @@ class TbbRandHashtable : public StringHashtable<V> {
   typedef tbb::concurrent_hash_map<String, V, HashEqual> Hashtable;
 
   Hashtable table_;
-  mutable tbb::queuing_rw_mutex mutex_;
 };
 
 template<class V>
 V TbbRandHashtable<V>::Get(const char *key) const {
   typename Hashtable::accessor result;
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (!table_.find(result, String::Wrap(key))) return NULL;
   return result->second;
 }
@@ -53,7 +50,6 @@ template<class V>
 bool TbbRandHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
   String skey = String::Copy<MemAlloc>(key);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   return table_.insert(std::make_pair(skey, value));
 }
 
@@ -61,7 +57,6 @@ template<class V>
 V TbbRandHashtable<V>::Update(const char *key, V value) {
   typename Hashtable::accessor result;
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (table_.find(result, String::Wrap(key))) {
     old = result->second;
     result->second = value;
@@ -73,7 +68,6 @@ template<class V>
 V TbbRandHashtable<V>::Remove(const char *key) {
   typename Hashtable::accessor result;
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   if (table_.find(result, String::Wrap(key))) {
     String::Free<MemAlloc>(result->first);
     old = result->second;
@@ -85,9 +79,9 @@ V TbbRandHashtable<V>::Remove(const char *key) {
 template<class V>
 std::vector<typename TbbRandHashtable<V>::KVPair> TbbRandHashtable<V>::Entries(
     const char *key, std::size_t n) const {
+  assert(false); // Unsafe operation!
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   pos = key ? table_.equal_range(String::Wrap(key)).first : table_.begin();
   for (std::size_t i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));

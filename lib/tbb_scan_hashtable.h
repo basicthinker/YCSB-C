@@ -12,7 +12,6 @@
 
 #include <vector>
 #include "tbb/concurrent_unordered_map.h"
-#include "tbb/queuing_rw_mutex.h"
 #include "lib/string.h"
 
 namespace vmp {
@@ -38,12 +37,10 @@ class TbbScanHashtable : public StringHashtable<V> {
   typedef tbb::concurrent_unordered_map<String, V, Hash> Hashtable;
 
   Hashtable table_;
-  mutable tbb::queuing_rw_mutex mutex_;
 };
 
 template<class V>
 V TbbScanHashtable<V>::Get(const char *key) const {
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   typename Hashtable::const_iterator it = table_.find(String::Wrap(key));
   if (it == table_.end()) return NULL;
   return it->second;
@@ -53,14 +50,12 @@ template<class V>
 bool TbbScanHashtable<V>::Insert(const char *key, V value) {
   if (!key) return false;
   String skey = String::Copy<MemAlloc>(key);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   return table_.insert(std::make_pair(skey, value)).second;
 }
 
 template<class V>
 V TbbScanHashtable<V>::Update(const char *key, V value) {
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
   if (it != table_.end()) {
     old = it->second;
@@ -71,8 +66,8 @@ V TbbScanHashtable<V>::Update(const char *key, V value) {
 
 template<class V>
 V TbbScanHashtable<V>::Remove(const char *key) {
+  assert(false); // Unsafe operation!
   V old(NULL);
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_);
   typename Hashtable::iterator it = table_.find(String::Wrap(key));
   if (it != table_.end()) {
     String::Free<MemAlloc>(it->first);
@@ -87,7 +82,6 @@ std::vector<typename TbbScanHashtable<V>::KVPair> TbbScanHashtable<V>::Entries(
     const char *key, std::size_t n) const {
   std::vector<KVPair> pairs;
   typename Hashtable::const_iterator pos;
-  tbb::queuing_rw_mutex::scoped_lock lock(mutex_, false);
   pos = key ? table_.equal_range(String::Wrap(key)).first : table_.begin();
   for (std::size_t i = 0; pos != table_.end() && i < n; ++pos, ++i) {
     pairs.push_back(std::make_pair(pos->first.value(), pos->second));
