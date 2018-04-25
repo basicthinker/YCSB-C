@@ -13,14 +13,16 @@
 
 #include <string>
 #include <vector>
+#include "lib/lock_stl_hashtable.h"
 #include "lib/tbb_rand_hashtable.h"
 
 namespace ycsbc {
 
 class TbbRandDB : public HashtableDB {
  public:
-  TbbRandDB() : HashtableDB(
-      new vmp::TbbRandHashtable<HashtableDB::FieldHashtable *>) { }
+  TbbRandDB()
+      : HashtableDB(new vmp::TbbRandHashtable<HashtableDB::FieldHashtable *>) {
+  }
 
   ~TbbRandDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
@@ -32,7 +34,7 @@ class TbbRandDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::TbbRandHashtable<const char *>;
+    return new vmp::LockStlHashtable<const char *>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
@@ -54,6 +56,6 @@ class TbbRandDB : public HashtableDB {
   }
 };
 
-} // ycsbc
+}  // ycsbc
 
 #endif // YCSB_C_TBB_RAND_DB_H_

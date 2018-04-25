@@ -13,14 +13,16 @@
 
 #include <string>
 #include <vector>
+#include "lib/lock_stl_hashtable.h"
 #include "lib/tbb_scan_hashtable.h"
 
 namespace ycsbc {
 
 class TbbScanDB : public HashtableDB {
  public:
-  TbbScanDB() : HashtableDB(
-      new vmp::TbbScanHashtable<HashtableDB::FieldHashtable *>) { }
+  TbbScanDB()
+      : HashtableDB(new vmp::TbbScanHashtable<HashtableDB::FieldHashtable *>) {
+  }
 
   ~TbbScanDB() {
     std::vector<KeyHashtable::KVPair> key_pairs = key_table_->Entries();
@@ -32,7 +34,7 @@ class TbbScanDB : public HashtableDB {
 
  protected:
   HashtableDB::FieldHashtable *NewFieldHashtable() {
-    return new vmp::TbbScanHashtable<const char *>;
+    return new vmp::LockStlHashtable<const char *>;
   }
 
   void DeleteFieldHashtable(HashtableDB::FieldHashtable *table) {
@@ -54,6 +56,6 @@ class TbbScanDB : public HashtableDB {
   }
 };
 
-} // ycsbc
+}  // ycsbc
 
 #endif // YCSB_C_TBB_SCAN_DB_H_
