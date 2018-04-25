@@ -10,6 +10,7 @@
 #define YCSB_C_UTILS_H_
 
 #include <algorithm>
+#include <atomic>
 #include <cstdint>
 #include <exception>
 #include <random>
@@ -32,7 +33,9 @@ inline uint64_t FNVHash64(uint64_t val) {
   return hash;
 }
 
-inline uint64_t Hash(uint64_t val) { return FNVHash64(val); }
+inline uint64_t Hash(uint64_t val) {
+  return FNVHash64(val);
+}
 
 inline double RandomDouble(double min = 0.0, double max = 1.0) {
   static std::default_random_engine generator;
@@ -47,12 +50,35 @@ inline char RandomPrintChar() {
   return rand() % 94 + 33;
 }
 
+class SpinLock {
+ public:
+  SpinLock()
+      : flag_(ATOMIC_FLAG_INIT) {
+  }
+
+  void lock() {
+    while (flag_.test_and_set(std::memory_order_acquire))
+      ;
+  }
+
+  void unlock() {
+    flag_.clear(std::memory_order_release);
+  }
+
+ private:
+  std::atomic_flag flag_;
+};
+
 class Exception : public std::exception {
  public:
-  Exception(const std::string &message) : message_(message) { }
+  Exception(const std::string &message)
+      : message_(message) {
+  }
+
   const char* what() const noexcept {
     return message_.c_str();
   }
+
  private:
   std::string message_;
 };
@@ -69,11 +95,14 @@ inline bool StrToBool(std::string str) {
 }
 
 inline std::string Trim(const std::string &str) {
-  auto front = std::find_if_not(str.begin(), str.end(), [](int c){ return std::isspace(c); });
-  return std::string(front, std::find_if_not(str.rbegin(), std::string::const_reverse_iterator(front),
-      [](int c){ return std::isspace(c); }).base());
+  auto front = std::find_if_not(str.begin(), str.end(),
+                                [](int c) {return std::isspace(c);});
+  return std::string(
+      front,
+      std::find_if_not(str.rbegin(), std::string::const_reverse_iterator(front),
+                       [](int c) {return std::isspace(c);}).base());
 }
 
-} // utils
+}  // utils
 
 #endif // YCSB_C_UTILS_H_
