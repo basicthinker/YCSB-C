@@ -107,6 +107,13 @@ class CoreWorkload {
   static const std::string REQUEST_DISTRIBUTION_PROPERTY;
   static const std::string REQUEST_DISTRIBUTION_DEFAULT;
   
+  ///
+  /// The name of the property for adding zero padding to record numbers in order to match 
+  /// string sort order. Controls the number of 0s to left pad with.
+  ///
+  static const std::string ZERO_PADDING_PROPERTY;
+  static const std::string ZERO_PADDING_DEFAULT;
+
   /// 
   /// The name of the property for the max scan length (number of records).
   ///
@@ -184,6 +191,7 @@ class CoreWorkload {
   CounterGenerator insert_key_sequence_;
   bool ordered_inserts_;
   size_t record_count_;
+  int zero_padding_;
 };
 
 inline std::string CoreWorkload::NextSequenceKey() {
@@ -203,7 +211,10 @@ inline std::string CoreWorkload::BuildKeyName(uint64_t key_num) {
   if (!ordered_inserts_) {
     key_num = utils::Hash(key_num);
   }
-  return std::string("user").append(std::to_string(key_num));
+  std::string key_num_str = std::to_string(key_num);
+  int zeros = zero_padding_ - key_num_str.length();
+  zeros = std::max(0, zeros);
+  return std::string("user").append(zeros, '0').append(key_num_str);
 }
 
 inline std::string CoreWorkload::NextFieldName() {
